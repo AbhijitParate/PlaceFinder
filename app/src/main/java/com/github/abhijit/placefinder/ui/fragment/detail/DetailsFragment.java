@@ -14,7 +14,7 @@ import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.github.abhijit.placefinder.utils.GlideUtils;
 import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.retrofit.models.Result;
 
@@ -103,14 +103,7 @@ public class DetailsFragment extends DialogFragment {
         }
 
         if (result.getPhotos() != null && result.getPhotos().size() > 0){
-//            imageContainer.setAdapter(new PhotoAdapter(getFragmentManager(), result.getPhotos()));
-            Glide.with(getActivity())
-                    .load("https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key=AIzaSyB-bpw0ollWA5AKpT11Y2CL2qPFs4kC_dk&" +
-                            "photoreference=" + result.getPhotos().get(0).getPhotoReference())
-                    .asBitmap()
-                    .placeholder(R.drawable.placeholder)
-                    .error(R.drawable.placeholder)
-                    .into(imageContainer);
+            GlideUtils.load("https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key=AIzaSyB-bpw0ollWA5AKpT11Y2CL2qPFs4kC_dk&" + "photoreference=" + result.getPhotos().get(0).getPhotoReference(), imageContainer);
         }
     }
 }

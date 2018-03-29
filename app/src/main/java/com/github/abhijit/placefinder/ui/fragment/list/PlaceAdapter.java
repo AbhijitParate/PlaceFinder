@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.github.abhijit.placefinder.utils.GlideUtils;
 import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.retrofit.models.Result;
 
@@ -47,12 +47,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
             holder.ratingBar.setVisibility(View.GONE);
         }
         if (r.getPhotos() != null && r.getPhotos().size() > 0) {
-            Glide.with(context)
-                    .load("https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key=AIzaSyB-bpw0ollWA5AKpT11Y2CL2qPFs4kC_dk&" +
-                            "photoreference=" + r.getPhotos().get(0).getPhotoReference())
-                    .asBitmap()
-                    .placeholder(R.drawable.placeholder)
-                    .into(holder.placeImageView);
+            GlideUtils.load("https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key=AIzaSyB-bpw0ollWA5AKpT11Y2CL2qPFs4kC_dk&photoreference=" + r.getPhotos().get(0).getPhotoReference(), holder.placeImageView);
         }
         holder.bindClickListener();
     }

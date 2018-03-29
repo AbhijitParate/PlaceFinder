@@ -1,6 +1,7 @@
 package com.github.abhijit.placefinder.ui.fragment.map;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,14 +52,12 @@ public class MapFragment extends Fragment
         return fragment;
     }
 
-    public MapFragment() {
-
-    }
+    public MapFragment() { }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View v = inflater.inflate(com.github.abhijit.placefinder.R.layout.fragment_map, container, false);
+        View v = inflater.inflate(R.layout.fragment_map, container, false);
         ButterKnife.bind(this, v);
         mapView.onCreate(savedInstanceState);
         return v;
@@ -76,23 +75,25 @@ public class MapFragment extends Fragment
     @Override
     public void onResume() {
         super.onResume();
-        if (mapView != null) {
-            mapView.onResume();
-        }
+        if (mapView != null) mapView.onResume();
     }
 
     @Override
     public void onPause() {
-        if (mapView != null) {
-            mapView.onPause();
-        }
         super.onPause();
+        if (mapView != null) mapView.onPause();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        mapView.onStop();
+        if (mapView != null) mapView.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mapView != null) mapView.onDestroy();
     }
 
     @Override
@@ -119,7 +120,6 @@ public class MapFragment extends Fragment
 
             Marker m = googleMap.addMarker(markerOptions);
             markerMap.put(m, result);
-
         }
 
         LatLng latLng = new LatLng(lat/placeList.size(), lng/placeList.size());
@@ -131,6 +131,6 @@ public class MapFragment extends Fragment
     @Override
     public void onInfoWindowClick(Marker marker) {
         Result result = markerMap.get(marker);
-        DetailsFragment.newInstance(result).show(getFragmentManager(), "Details");
+        DetailsFragment.newInstance(result).show(getChildFragmentManager(), "Details");
     }
 }
