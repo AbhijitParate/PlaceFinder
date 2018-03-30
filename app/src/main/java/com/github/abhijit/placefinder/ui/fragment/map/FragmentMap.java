@@ -30,11 +30,13 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MapFragment extends Fragment
+public class FragmentMap extends Fragment
         implements
         OnResultListener,
         GoogleMap.OnInfoWindowClickListener,
         OnMapReadyCallback {
+
+    public static final String TAG = FragmentMap.class.getName();
 
     @BindView(R.id.mapView)
     MapView mapView;
@@ -43,16 +45,16 @@ public class MapFragment extends Fragment
     private List<Result> placeList;
     private Map<Marker, Result> markerMap;
 
-    public static MapFragment newInstance() {
+    public static FragmentMap newInstance() {
 
         Bundle args = new Bundle();
 
-        MapFragment fragment = new MapFragment();
+        FragmentMap fragment = new FragmentMap();
         fragment.setArguments(args);
         return fragment;
     }
 
-    public MapFragment() { }
+    public FragmentMap() { }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -69,7 +71,6 @@ public class MapFragment extends Fragment
         listener = (OnFragmentAttachListener) getActivity();
         listener.onFragmentAttach(this);
         mapView.onStart();
-        mapView.getMapAsync(this);
     }
 
     @Override
@@ -100,6 +101,7 @@ public class MapFragment extends Fragment
     public void onResultReady(Places places) {
         placeList = places.getResults();
         markerMap = new HashMap<>();
+        mapView.getMapAsync(this);
     }
 
     @Override

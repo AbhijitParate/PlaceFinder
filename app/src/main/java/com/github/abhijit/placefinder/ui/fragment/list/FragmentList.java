@@ -3,7 +3,6 @@ package com.github.abhijit.placefinder.ui.fragment.list;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,23 +18,25 @@ import com.github.abhijit.placefinder.ui.fragment.detail.DetailsFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ListFragment extends Fragment implements OnResultListener, PlaceAdapter.OnPlaceClickListener {
+public class FragmentList extends Fragment implements OnResultListener, PlaceAdapter.OnPlaceClickListener {
+
+    public static final String TAG = FragmentList.class.getName();
 
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
 
     OnFragmentAttachListener listener;
 
-    public static ListFragment newInstance() {
+    public static FragmentList newInstance() {
 
         Bundle args = new Bundle();
 
-        ListFragment fragment = new ListFragment();
+        FragmentList fragment = new FragmentList();
         fragment.setArguments(args);
         return fragment;
     }
 
-    public ListFragment() {
+    public FragmentList() {
 
     }
 
@@ -52,7 +53,6 @@ public class ListFragment extends Fragment implements OnResultListener, PlaceAda
         super.onActivityCreated(savedInstanceState);
         setRetainInstance(true);
         listener = (OnFragmentAttachListener) getActivity();
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
     }
 
     @Override

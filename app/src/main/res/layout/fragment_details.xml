@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="2dp"
-    tools:context="com.github.abhijit.placefinder.ui.fragment.map.MapFragment">
+    tools:context="com.github.abhijit.placefinder.ui.fragment.map.FragmentMap">
 
     <RelativeLayout
         android:layout_width="wrap_content"
