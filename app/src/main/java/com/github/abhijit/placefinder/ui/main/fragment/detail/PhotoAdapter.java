@@ -4,15 +4,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.github.abhijit.placefinder.retrofit.models.Photo;
+import com.github.abhijit.placefinder.data.web.models.Places;
 
 import java.util.List;
 
 public class PhotoAdapter extends FragmentPagerAdapter {
 
-    private List<Photo> photoList;
+    private List<Places.Result.Photo> photoList;
 
-    public PhotoAdapter(FragmentManager fm, List<Photo> photos) {
+    public PhotoAdapter(FragmentManager fm, List<Places.Result.Photo> photos) {
         super(fm);
         this.photoList = photos;
     }

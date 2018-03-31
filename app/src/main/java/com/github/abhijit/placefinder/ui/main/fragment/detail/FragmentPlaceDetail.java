@@ -17,7 +17,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.github.abhijit.placefinder.R;
-import com.github.abhijit.placefinder.retrofit.models.Result;
+import com.github.abhijit.placefinder.data.web.models.Places;
 import com.github.abhijit.placefinder.utils.GlideUtils;
 
 import java.io.IOException;
@@ -51,11 +51,11 @@ public class FragmentPlaceDetail extends BottomSheetDialogFragment {
     ListView reviewList;
 
     Geocoder geocoder;
-    Result result;
+    Places.Result result;
 
     public FragmentPlaceDetail() { }
 
-    public static FragmentPlaceDetail newInstance(Result result) {
+    public static FragmentPlaceDetail newInstance(Places.Result result) {
         Bundle args = new Bundle();
         args.putParcelable(KEY_RESULT, result);
         FragmentPlaceDetail fragment = new FragmentPlaceDetail();

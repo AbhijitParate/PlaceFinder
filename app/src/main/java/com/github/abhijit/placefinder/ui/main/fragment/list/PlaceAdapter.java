@@ -10,7 +10,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.github.abhijit.placefinder.R;
-import com.github.abhijit.placefinder.retrofit.models.Result;
+import com.github.abhijit.placefinder.data.web.models.Places;
 import com.github.abhijit.placefinder.utils.GlideUtils;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import butterknife.ButterKnife;
 
 public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHolder> {
 
-    private List<Result> placeList = new ArrayList<>();
+    private List<Places.Result> placeList = new ArrayList<>();
     private OnPlaceClickListener placeClickListener;
 
     PlaceAdapter(OnPlaceClickListener listener) {
@@ -42,7 +42,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
 
     @Override
     public void onBindViewHolder(@NonNull PlaceViewHolder holder, int position) {
-        Result r = placeList.get(position);
+        Places.Result r = placeList.get(position);
         holder.tvName.setText(r.getName());
         if (r.getRating() != null) {
             holder.ratingBar.setVisibility(View.VISIBLE);
@@ -61,7 +61,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
         return placeList.size();
     }
 
-    public void updateDataSet(List<Result> results) {
+    public void updateDataSet(List<Places.Result> results) {
         placeList.clear();
         placeList.addAll(results);
         notifyDataSetChanged();
@@ -94,6 +94,6 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
     }
 
     interface OnPlaceClickListener {
-        void onPlaceClicked(Result result);
+        void onPlaceClicked(Places.Result result);
     }
 }

@@ -8,8 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.abhijit.placefinder.R;
-import com.github.abhijit.placefinder.retrofit.models.Places;
-import com.github.abhijit.placefinder.retrofit.models.Result;
+import com.github.abhijit.placefinder.data.web.models.Places;
 import com.github.abhijit.placefinder.ui.main.OnFragmentAttachListener;
 import com.github.abhijit.placefinder.ui.main.OnResultListener;
 import com.github.abhijit.placefinder.ui.main.fragment.detail.FragmentPlaceDetail;
@@ -43,8 +42,8 @@ public class FragmentMap extends Fragment
     MapView mapView;
 
     private boolean isMapInitialized = false;
-    private List<Result> placeList = new ArrayList<>();
-    private Map<Marker, Result> markerMap = new HashMap<>();
+    private List<Places.Result> placeList = new ArrayList<>();
+    private Map<Marker, Places.Result> markerMap = new HashMap<>();
 
     public static FragmentMap newInstance() {
         Bundle args = new Bundle();
@@ -109,7 +108,7 @@ public class FragmentMap extends Fragment
 
         googleMap.clear();
 
-        for (Result result : placeList) {
+        for (Places.Result result : placeList) {
 
             lat += result.getGeometry().getLocation().getLat();
             lng += result.getGeometry().getLocation().getLng();
@@ -150,7 +149,7 @@ public class FragmentMap extends Fragment
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        Result result = markerMap.get(marker);
+        Places.Result result = markerMap.get(marker);
         FragmentPlaceDetail.newInstance(result).show(getChildFragmentManager());
     }
 }

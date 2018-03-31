@@ -4,9 +4,9 @@ import android.location.Location;
 
 import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.base.BasePresenter;
-import com.github.abhijit.placefinder.data.placesclient.WebService;
-import com.github.abhijit.placefinder.data.scheduler.SchedulerProviderImpl;
-import com.github.abhijit.placefinder.retrofit.models.Places;
+import com.github.abhijit.placefinder.data.scheduler.SchedulerProvider;
+import com.github.abhijit.placefinder.data.web.WebService;
+import com.github.abhijit.placefinder.data.web.models.Places;
 import com.google.android.gms.maps.model.LatLng;
 
 import io.reactivex.annotations.NonNull;
@@ -18,7 +18,7 @@ class MainPresenter extends BasePresenter<MainContract.View> implements MainCont
 
     private static final int DEFAULT_RADIUS = 1000;
 
-    MainPresenter(MainContract.View view, WebService client, SchedulerProviderImpl scheduler) {
+    MainPresenter(MainContract.View view, WebService client, SchedulerProvider scheduler) {
         super(view, client, scheduler);
         checkForLocationPermission();
     }
@@ -98,7 +98,8 @@ class MainPresenter extends BasePresenter<MainContract.View> implements MainCont
     public void checkForLocationPermission() {
         if (getView().hasLocationPermission()) {
             Location lastKnownLocation = getView().getLastKnownLocation();
-            getPlaces(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
+            if (lastKnownLocation != null)
+                getPlaces(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
         } else {
             getView().requestLocationPermission();
         }

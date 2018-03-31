@@ -20,9 +20,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.github.abhijit.placefinder.R;
-import com.github.abhijit.placefinder.data.placesclient.ClientInjector;
 import com.github.abhijit.placefinder.data.scheduler.SchedulerInjector;
-import com.github.abhijit.placefinder.retrofit.models.Places;
+import com.github.abhijit.placefinder.data.web.WebServiceInjector;
+import com.github.abhijit.placefinder.data.web.models.Places;
 import com.github.abhijit.placefinder.ui.main.fragment.list.FragmentList;
 import com.github.abhijit.placefinder.ui.main.fragment.map.FragmentMap;
 import com.github.abhijit.placefinder.ui.view.CustomSearchView;
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (presenter == null) {
-            presenter = new MainPresenter(this, ClientInjector.getClient(), SchedulerInjector.getScheduler());
+            presenter = new MainPresenter(this, WebServiceInjector.getWebService(), SchedulerInjector.getScheduler());
         }
         switchToListView();
     }
@@ -134,11 +134,10 @@ public class MainActivity extends AppCompatActivity
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         searchView = (CustomSearchView) menu.findItem(R.id.action_search).getActionView();
 
-        if (null != searchView) {
-            searchView.setSearchableInfo(searchManager
-                    .getSearchableInfo(getComponentName()));
-            searchView.setOnQueryTextListener(this);
+        if (searchManager != null) {
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         }
+        searchView.setOnQueryTextListener(this);
 
         return true;
     }
@@ -156,17 +155,18 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_list_view) {
-            switchToListView();
-            return true;
-        } else if (id == R.id.action_map_view) {
-            switchToMapView();
-            return true;
-        } else if (id == android.R.id.home) {
-            setTitle(R.string.app_name);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-            getSupportActionBar().setDisplayShowHomeEnabled(false);
-            return true;
+        switch (id) {
+            case R.id.action_list_view:
+                switchToListView();
+                return true;
+            case R.id.action_map_view:
+                switchToMapView();
+                return true;
+            case android.R.id.home:
+                setTitle(R.string.app_name);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                getSupportActionBar().setDisplayShowHomeEnabled(false);
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -238,12 +238,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void refreshPlaces() {
         String query = searchView.getQuery().toString();
-        if (!TextUtils.isEmpty(query)) {
-            Location lastKnownLocation = getLastKnownLocation();
-            presenter.searchPlaces(query, new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
-        } else {
-            Location lastKnownLocation = getLastKnownLocation();
-            presenter.getPlaces(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
+        Location lastKnownLocation = getLastKnownLocation();
+        if (lastKnownLocation != null) {
+            if (!TextUtils.isEmpty(query)) {
+                presenter.searchPlaces(query, new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
+            } else {
+                presenter.getPlaces(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
+            }
         }
     }
 
@@ -254,7 +255,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
                 String query = searchView.getQuery().toString();
-                if (!TextUtils.isEmpty(query)){
+                if (!TextUtils.isEmpty(query)) {
                     presenter.searchPlaces(query, latLng);
                 } else {
                     presenter.getPlaces(latLng);

@@ -1,6 +1,6 @@
-package com.github.abhijit.placefinder.data.placesclient;
+package com.github.abhijit.placefinder.data.web;
 
-import com.github.abhijit.placefinder.retrofit.models.Places;
+import com.github.abhijit.placefinder.data.web.models.Places;
 
 import io.reactivex.Maybe;
 

@@ -1,7 +1,7 @@
 package com.github.abhijit.placefinder.base;
 
-import com.github.abhijit.placefinder.data.placesclient.WebService;
 import com.github.abhijit.placefinder.data.scheduler.SchedulerProvider;
+import com.github.abhijit.placefinder.data.web.WebService;
 
 import io.reactivex.Maybe;
 import io.reactivex.disposables.CompositeDisposable;
@@ -21,11 +21,11 @@ public class BasePresenter<V extends BaseContract.View> {
         this.disposable = new CompositeDisposable();
     }
 
-    public void subscribe(){
+    public void subscribe() {
 
     }
 
-    public void unsubscribe(){
+    public void unsubscribe() {
         disposable.clear();
     }
 
@@ -36,7 +36,7 @@ public class BasePresenter<V extends BaseContract.View> {
                 .subscribeWith(disposableMaybeObserver));
     }
 
-    public WebService getPlacesClient() {
+    protected WebService getPlacesClient() {
         return placesClient;
     }
 

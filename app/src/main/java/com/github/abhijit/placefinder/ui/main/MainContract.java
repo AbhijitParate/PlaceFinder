@@ -4,7 +4,7 @@ import android.location.Location;
 import android.support.annotation.StringRes;
 
 import com.github.abhijit.placefinder.base.BaseContract;
-import com.github.abhijit.placefinder.retrofit.models.Places;
+import com.github.abhijit.placefinder.data.web.models.Places;
 import com.google.android.gms.maps.model.LatLng;
 
 interface MainContract {

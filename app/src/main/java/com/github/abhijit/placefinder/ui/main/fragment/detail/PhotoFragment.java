@@ -8,9 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.github.abhijit.placefinder.utils.GlideUtils;
 import com.github.abhijit.placefinder.R;
-import com.github.abhijit.placefinder.retrofit.models.Photo;
+import com.github.abhijit.placefinder.data.web.models.Places;
+import com.github.abhijit.placefinder.utils.GlideUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -24,7 +24,7 @@ public class PhotoFragment extends Fragment {
 
     String photoReference;
 
-    public static PhotoFragment getInstance(Photo photo) {
+    public static PhotoFragment getInstance(Places.Result.Photo photo) {
         PhotoFragment f = new PhotoFragment();
         Bundle args = new Bundle();
         args.putString(KEY_PHOTO_REFERENCE, photo.getPhotoReference());
@@ -35,7 +35,9 @@ public class PhotoFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        photoReference = getArguments().getString(KEY_PHOTO_REFERENCE);
+        if (getArguments() != null) {
+            photoReference = getArguments().getString(KEY_PHOTO_REFERENCE);
+        }
     }
 
     @Override
@@ -48,8 +50,7 @@ public class PhotoFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        GlideUtils.load("https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key=AIzaSyB-bpw0ollWA5AKpT11Y2CL2qPFs4kC_dk&" +
-                        "photoreference=" + photoReference, photo);
+        GlideUtils.load(photoReference, photo);
     }
 
     @Override

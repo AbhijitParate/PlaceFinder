@@ -11,8 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.abhijit.placefinder.R;
-import com.github.abhijit.placefinder.retrofit.models.Places;
-import com.github.abhijit.placefinder.retrofit.models.Result;
+import com.github.abhijit.placefinder.data.web.models.Places;
 import com.github.abhijit.placefinder.ui.main.OnFragmentAttachListener;
 import com.github.abhijit.placefinder.ui.main.OnResultListener;
 import com.github.abhijit.placefinder.ui.main.fragment.detail.FragmentPlaceDetail;
@@ -83,7 +82,7 @@ public class FragmentList extends Fragment
     }
 
     @Override
-    public void onPlaceClicked(Result result) {
+    public void onPlaceClicked(Places.Result result) {
         FragmentPlaceDetail.newInstance(result).show(getChildFragmentManager());
     }
 
