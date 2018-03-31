@@ -19,6 +19,14 @@ public class Places {
         return results;
     }
 
+    public String getNextPageToken() {
+        return nextPageToken;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
     public static class Result implements Parcelable {
         public static final Creator<Result> CREATOR = new Creator<Result>() {
             @Override

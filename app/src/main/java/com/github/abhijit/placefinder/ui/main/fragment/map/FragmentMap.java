@@ -1,5 +1,6 @@
 package com.github.abhijit.placefinder.ui.main.fragment.map;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -10,8 +11,9 @@ import android.view.ViewGroup;
 import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.data.web.models.Places;
 import com.github.abhijit.placefinder.ui.main.OnFragmentAttachListener;
-import com.github.abhijit.placefinder.ui.main.OnResultListener;
+import com.github.abhijit.placefinder.ui.main.ResultListener;
 import com.github.abhijit.placefinder.ui.main.fragment.detail.FragmentPlaceDetail;
+import com.github.abhijit.placefinder.utils.PermissionUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -30,9 +32,12 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
 public class FragmentMap extends Fragment
         implements
-        OnResultListener,
+        ResultListener,
         GoogleMap.OnInfoWindowClickListener,
         OnMapReadyCallback {
 
@@ -95,13 +100,24 @@ public class FragmentMap extends Fragment
     }
 
     @Override
-    public void onResultReady(Places places) {
+    public void setPlaces(Places places) {
         placeList.clear();
         placeList.addAll(places.getResults());
         markerMap.clear();
         mapView.getMapAsync(this);
     }
 
+    @Override
+    public void appendPlaces(Places places) {
+        // Nothing goes here
+    }
+
+    @Override
+    public void noMorePlaces() {
+        // Nothing goes here
+    }
+
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         double lat = 0, lng = 0;
@@ -137,6 +153,10 @@ public class FragmentMap extends Fragment
                 return true;
             }
         });
+        if (PermissionUtils.hasPermission(getContext(), ACCESS_FINE_LOCATION)
+                || PermissionUtils.hasPermission(getContext(), ACCESS_COARSE_LOCATION)) {
+            googleMap.setMyLocationEnabled(true);
+        }
         googleMap.setOnInfoWindowClickListener(this);
         googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
             @Override

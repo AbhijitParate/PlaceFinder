@@ -52,7 +52,7 @@ class WebServiceImpl implements WebService {
         return Maybe.create(new MaybeOnSubscribe<Places>() {
             @Override
             public void subscribe(@NonNull final MaybeEmitter<Places> e) {
-                api.searchPlaces(lat + "," + lng, radius, query)
+                api.searchPlaces(String.format("%s,%s", lat, lng), radius, query)
                         .enqueue(new Callback<Places>() {
                                      @Override
                                      public void onResponse(@NonNull Call<Places> call, @NonNull Response<Places> response) {
@@ -70,10 +70,33 @@ class WebServiceImpl implements WebService {
         });
     }
 
-    static class RetroFitInstance {
+    @Override
+    public Maybe<Places> getNextPlaces(final String nextPageToken) {
+        return Maybe.create(new MaybeOnSubscribe<Places>() {
+            @Override
+            public void subscribe(final MaybeEmitter<Places> e) {
+                api.getNextPlaces(nextPageToken)
+                        .enqueue(new Callback<Places>() {
+                            @Override
+                            public void onResponse(@NonNull Call<Places> call, @NonNull Response<Places> response) {
+                                if (response.isSuccessful()) {
+                                    e.onSuccess(response.body());
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull Call<Places> call, @NonNull Throwable t) {
+                                e.onError(t);
+                            }
+                        });
+            }
+        });
+    }
+
+    private static class RetroFitInstance {
         private static final String BASE_URL = "https://maps.googleapis.com";
 
-        public static Retrofit getRetrofit() {
+        private static Retrofit getRetrofit() {
             return new Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create())

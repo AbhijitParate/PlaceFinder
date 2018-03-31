@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.data.web.models.Places;
 import com.github.abhijit.placefinder.ui.main.OnFragmentAttachListener;
-import com.github.abhijit.placefinder.ui.main.OnResultListener;
+import com.github.abhijit.placefinder.ui.main.ResultListener;
 import com.github.abhijit.placefinder.ui.main.fragment.detail.FragmentPlaceDetail;
 
 import butterknife.BindView;
@@ -21,8 +21,8 @@ import butterknife.ButterKnife;
 
 public class FragmentList extends Fragment
         implements
-        OnResultListener,
-        PlaceAdapter.OnPlaceClickListener,
+        ResultListener,
+        PlaceAdapter.AdapterCallbackListener,
         SwipeRefreshLayout.OnRefreshListener {
 
     public static final String TAG = FragmentList.class.getName();
@@ -37,9 +37,7 @@ public class FragmentList extends Fragment
     private PlaceAdapter placeAdapter;
 
     public static FragmentList newInstance() {
-
         Bundle args = new Bundle();
-
         FragmentList fragment = new FragmentList();
         fragment.setArguments(args);
         return fragment;
@@ -76,14 +74,29 @@ public class FragmentList extends Fragment
     }
 
     @Override
-    public void onResultReady(Places places) {
-        placeAdapter.updateDataSet(places.getResults());
+    public void setPlaces(Places places) {
+        placeAdapter.updateDataSet(places);
         swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void appendPlaces(Places places) {
+        placeAdapter.appendPlaces(places);
+    }
+
+    @Override
+    public void noMorePlaces() {
+        placeAdapter.noMorePlaces();
     }
 
     @Override
     public void onPlaceClicked(Places.Result result) {
         FragmentPlaceDetail.newInstance(result).show(getChildFragmentManager());
+    }
+
+    @Override
+    public void getMorePlaces(String nextPageToken) {
+        ((OnFragmentAttachListener) getActivity()).loadMorePlaces(nextPageToken);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.github.abhijit.placefinder.ui.main.fragment.list;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,41 +20,61 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHolder> {
+public class PlaceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private static final int ITEM_TYPE_FOOTER = 100;
+    private static final int ITEM_TYPE_PLACE = 101;
 
     private List<Places.Result> placeList = new ArrayList<>();
-    private OnPlaceClickListener placeClickListener;
+    private AdapterCallbackListener callbackListener;
+    private String nextPageToken;
 
-    PlaceAdapter(OnPlaceClickListener listener) {
-        this.placeClickListener = listener;
+    PlaceAdapter(AdapterCallbackListener listener) {
+        this.callbackListener = listener;
     }
 
     @Override
     public int getItemViewType(int position) {
-        return super.getItemViewType(position);
+        if (placeList.get(position) == null) {
+            if (nextPageToken != null) {
+                callbackListener.getMorePlaces(nextPageToken);
+                nextPageToken = null;
+            }
+            return ITEM_TYPE_FOOTER;
+        }
+        return ITEM_TYPE_PLACE;
     }
 
     @NonNull
     @Override
-    public PlaceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.place_card, parent, false);
-        return new PlaceViewHolder(view);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == ITEM_TYPE_FOOTER) {
+            return new FooterViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_footer, parent, false));
+        } else {
+            return new PlaceViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_place_card, parent, false));
+        }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PlaceViewHolder holder, int position) {
-        Places.Result r = placeList.get(position);
-        holder.tvName.setText(r.getName());
-        if (r.getRating() != null) {
-            holder.ratingBar.setVisibility(View.VISIBLE);
-            holder.ratingBar.setRating(Float.valueOf(String.valueOf(r.getRating())));
-        } else {
-            holder.ratingBar.setVisibility(View.GONE);
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        int itemViewType = getItemViewType(position);
+        if (itemViewType != ITEM_TYPE_FOOTER) {
+            Places.Result r = placeList.get(position);
+            ((PlaceViewHolder) holder).tvName.setText(String.format("%s %s", String.valueOf(position + 1), r.getName()));
+            if (r.getRating() != null) {
+                ((PlaceViewHolder) holder).ratingBar.setVisibility(View.VISIBLE);
+                ((PlaceViewHolder) holder).ratingBar.setRating(Float.valueOf(String.valueOf(r.getRating())));
+            } else {
+                ((PlaceViewHolder) holder).ratingBar.setVisibility(View.GONE);
+            }
+            if (r.getPhotos() != null && r.getPhotos().size() > 0) {
+                GlideUtils.load(r.getPhotos().get(0).getPhotoReference(), ((PlaceViewHolder) holder).placeImageView);
+            }
+            ((PlaceViewHolder) holder).bindClickListener();
+            if (position == placeList.size() - 1) {
+                Log.d("onBindViewHolder: ", "No more places");
+            }
         }
-        if (r.getPhotos() != null && r.getPhotos().size() > 0) {
-            GlideUtils.load(r.getPhotos().get(0).getPhotoReference(), holder.placeImageView);
-        }
-        holder.bindClickListener();
     }
 
     @Override
@@ -61,10 +82,31 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
         return placeList.size();
     }
 
-    public void updateDataSet(List<Places.Result> results) {
+    public void updateDataSet(Places places) {
         placeList.clear();
-        placeList.addAll(results);
+        placeList.addAll(places.getResults());
+        placeList.add(null);
+        updateNextPageToken(places);
         notifyDataSetChanged();
+    }
+
+    public void appendPlaces(Places places) {
+        int oldSize = placeList.size() - 1;
+        placeList.addAll(oldSize, places.getResults());
+        updateNextPageToken(places);
+        notifyItemRangeChanged(oldSize, placeList.size());
+    }
+
+    private void updateNextPageToken(Places places) {
+        nextPageToken = places.getNextPageToken();
+        if (nextPageToken == null) {
+            placeList.remove(placeList.size() - 1);
+        }
+    }
+
+    public void noMorePlaces() {
+        placeList.remove(placeList.size() - 1);
+        notifyItemRemoved(placeList.size() - 1);
     }
 
     class PlaceViewHolder extends RecyclerView.ViewHolder {
@@ -83,17 +125,24 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
             ButterKnife.bind(this, itemView);
         }
 
-        void bindClickListener(){
+        void bindClickListener() {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    placeClickListener.onPlaceClicked(placeList.get(getAdapterPosition()));
+                    callbackListener.onPlaceClicked(placeList.get(getAdapterPosition()));
                 }
             });
         }
     }
 
-    interface OnPlaceClickListener {
+    class FooterViewHolder extends RecyclerView.ViewHolder {
+        FooterViewHolder(View itemView) {
+            super(itemView);
+        }
+    }
+
+    interface AdapterCallbackListener {
         void onPlaceClicked(Places.Result result);
+        void getMorePlaces(String nextPageToken);
     }
 }

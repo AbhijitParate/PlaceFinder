@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity
     private static final int CAMERA_MOVE_DELAY = 1000; // 1 Seconds delay
     private static final int REQUEST_CODE_LOCATION_PERMISSION = 345;
 
-    private Set<OnResultListener> resultListeners = new HashSet<>();
+    private Set<ResultListener> resultListeners = new HashSet<>();
     private SearchView searchView;
     private String currentView = FragmentList.TAG;
 
@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity
 
     private Fragment fragmentList, fragmentMap;
 
-    private Handler handler = new Handler();
+    private static Handler handler = new Handler();
     private Runnable cameraMoveRunnable;
 
     @Override
@@ -203,9 +203,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void appendPlaces(Places places) {
+        for (ResultListener l : resultListeners) {
+            l.appendPlaces(places);
+        }
+    }
+
+    @Override
     public void setPlaces(Places places) {
-        for (OnResultListener l : resultListeners) {
-            l.onResultReady(places);
+        for (ResultListener l : resultListeners) {
+            l.setPlaces(places);
         }
     }
 
@@ -231,7 +238,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onFragmentAttach(OnResultListener listener) {
+    public void onFragmentAttach(ResultListener listener) {
         this.resultListeners.add(listener);
     }
 
@@ -263,5 +270,10 @@ public class MainActivity extends AppCompatActivity
             }
         };
         handler.postDelayed(cameraMoveRunnable, CAMERA_MOVE_DELAY);
+    }
+
+    @Override
+    public void loadMorePlaces(String nextPageToken) {
+        presenter.loadMorePlaces(nextPageToken);
     }
 }

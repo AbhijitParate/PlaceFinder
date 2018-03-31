@@ -6,9 +6,9 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
-interface Api {
+public interface Api {
 
-    String KEY = "AIzaSyDQ6kfEwxB2qKw_Pd5p0qladlSlCO0xr3w";
+    String KEY = "AIzaSyAEQUEF212etm4tfVMvZlQPz4cS4qVuxGI";
 
     @GET("/maps/api/place/nearbysearch/json?key=" + KEY + "&type=restaurant&")
     Call<Places> getPlaces(@Query("location") String location,
@@ -18,4 +18,7 @@ interface Api {
     Call<Places> searchPlaces(@Query("location") String location,
                               @Query("radius") int radius,
                               @Query("keyword") String query);
+
+    @GET("/maps/api/place/nearbysearch/json?key=" + KEY)
+    Call<Places> getNextPlaces(@Query("pagetoken") String nextPageToken);
 }

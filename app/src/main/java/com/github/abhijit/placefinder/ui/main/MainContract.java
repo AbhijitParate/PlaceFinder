@@ -15,6 +15,7 @@ interface MainContract {
         void requestLocationPermission();
         Location getLastKnownLocation();
         void showMessage(@StringRes int stringId);
+        void appendPlaces(Places places);
     }
 
     interface Presenter extends BaseContract.Presenter {
@@ -23,5 +24,6 @@ interface MainContract {
         void checkForLocationPermission();
         void locationPermissionGranted();
         void locationPermissionDenied();
+        void loadMorePlaces(String nextPageToken);
     }
 }

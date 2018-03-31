@@ -12,11 +12,14 @@ import com.google.android.gms.maps.model.LatLng;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.observers.DisposableMaybeObserver;
 
-class MainPresenter extends BasePresenter<MainContract.View> implements MainContract.Presenter {
+class MainPresenter extends BasePresenter<MainContract.View>
+        implements
+        MainContract.Presenter {
 
     private static final String TAG = MainPresenter.class.getSimpleName();
 
-    private static final int DEFAULT_RADIUS = 1000;
+    private static final int DEFAULT_RADIUS = 5000;
+    private LatLng lastLatLng;
 
     MainPresenter(MainContract.View view, WebService client, SchedulerProvider scheduler) {
         super(view, client, scheduler);
@@ -35,7 +38,7 @@ class MainPresenter extends BasePresenter<MainContract.View> implements MainCont
     @Override
     public void getPlaces(LatLng latLng) {
         addToDisposable(
-                getPlacesClient().getPlaces(latLng.latitude, latLng.longitude, DEFAULT_RADIUS),
+                getWebService().getPlaces(latLng.latitude, latLng.longitude, DEFAULT_RADIUS),
                 new DisposableMaybeObserver<Places>() {
                     @Override
                     public void onSuccess(@NonNull Places places) {
@@ -66,7 +69,7 @@ class MainPresenter extends BasePresenter<MainContract.View> implements MainCont
     @Override
     public void searchPlaces(String queryTerm, LatLng latLng) {
         addToDisposable(
-                getPlacesClient().searchPlaces(latLng.latitude, latLng.longitude, DEFAULT_RADIUS, queryTerm),
+                getWebService().searchPlaces(latLng.latitude, latLng.longitude, DEFAULT_RADIUS, queryTerm),
                 new DisposableMaybeObserver<Places>() {
                     @Override
                     public void onSuccess(@NonNull Places places) {
@@ -98,8 +101,10 @@ class MainPresenter extends BasePresenter<MainContract.View> implements MainCont
     public void checkForLocationPermission() {
         if (getView().hasLocationPermission()) {
             Location lastKnownLocation = getView().getLastKnownLocation();
-            if (lastKnownLocation != null)
-                getPlaces(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
+            if (lastKnownLocation != null) {
+                lastLatLng = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
+                getPlaces(lastLatLng);
+            }
         } else {
             getView().requestLocationPermission();
         }
@@ -108,11 +113,47 @@ class MainPresenter extends BasePresenter<MainContract.View> implements MainCont
     @Override
     public void locationPermissionGranted() {
         Location lastKnownLocation = getView().getLastKnownLocation();
-        getPlaces(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
+        lastLatLng = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
+        getPlaces(lastLatLng);
     }
 
     @Override
     public void locationPermissionDenied() {
         getView().showMessage(R.string.message_permission_denied);
+    }
+
+    @Override
+    public void loadMorePlaces(String nextPageToken) {
+        addToDisposable(
+                getWebService().getNextPlaces(nextPageToken),
+                new DisposableMaybeObserver<Places>() {
+                    @Override
+                    public void onSuccess(Places places) {
+                        if ("OK".equalsIgnoreCase(places.getStatus())) {
+                            if (places.getResults() != null) {
+                                if (places.getResults().size() > 0) {
+                                    getView().appendPlaces(places);
+                                } else {
+                                    getView().showMessage(R.string.message_no_places_found);
+                                }
+                            } else {
+                                getView().showMessage(R.string.message_failed_to_get_places);
+                            }
+                        } else {
+                            getView().showMessage(R.string.message_api_issue);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        getView().showMessage(R.string.message_failed_to_get_places);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                }
+        );
     }
 }
