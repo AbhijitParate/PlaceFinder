@@ -1,4 +1,4 @@
-package com.github.abhijit.placefinder.ui.fragment.list;
+package com.github.abhijit.placefinder.ui.main.fragment.list;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,14 +13,18 @@ import android.view.ViewGroup;
 import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.retrofit.models.Places;
 import com.github.abhijit.placefinder.retrofit.models.Result;
-import com.github.abhijit.placefinder.ui.OnFragmentAttachListener;
-import com.github.abhijit.placefinder.ui.OnResultListener;
-import com.github.abhijit.placefinder.ui.fragment.detail.FragmentPlaceDetail;
+import com.github.abhijit.placefinder.ui.main.OnFragmentAttachListener;
+import com.github.abhijit.placefinder.ui.main.OnResultListener;
+import com.github.abhijit.placefinder.ui.main.fragment.detail.FragmentPlaceDetail;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class FragmentList extends Fragment implements OnResultListener, PlaceAdapter.OnPlaceClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class FragmentList extends Fragment
+        implements
+        OnResultListener,
+        PlaceAdapter.OnPlaceClickListener,
+        SwipeRefreshLayout.OnRefreshListener {
 
     public static final String TAG = FragmentList.class.getName();
 

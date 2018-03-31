@@ -1,4 +1,4 @@
-package com.github.abhijit.placefinder.ui;
+package com.github.abhijit.placefinder.ui.main;
 
 import android.Manifest;
 import android.app.SearchManager;
@@ -23,8 +23,8 @@ import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.data.placesclient.ClientInjector;
 import com.github.abhijit.placefinder.data.scheduler.SchedulerInjector;
 import com.github.abhijit.placefinder.retrofit.models.Places;
-import com.github.abhijit.placefinder.ui.fragment.list.FragmentList;
-import com.github.abhijit.placefinder.ui.fragment.map.FragmentMap;
+import com.github.abhijit.placefinder.ui.main.fragment.list.FragmentList;
+import com.github.abhijit.placefinder.ui.main.fragment.map.FragmentMap;
 import com.github.abhijit.placefinder.ui.view.CustomSearchView;
 import com.github.abhijit.placefinder.utils.LocationUtils;
 import com.github.abhijit.placefinder.utils.PermissionUtils;
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity
         if (presenter == null) {
             presenter = new MainPresenter(this, ClientInjector.getClient(), SchedulerInjector.getScheduler());
         }
-        loadFragments();
+        switchToListView();
     }
 
     @Override
@@ -83,14 +83,6 @@ public class MainActivity extends AppCompatActivity
         Log.d(TAG, "onStart() called");
         super.onStart();
         presenter.subscribe();
-    }
-
-    private void loadFragments() {
-        if (currentView.equals(FragmentList.TAG)) {
-            switchToListView();
-        } else {
-            switchToMapView();
-        }
     }
 
     @Override
@@ -154,9 +146,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (currentView.equals(FragmentMap.TAG))
-            menu.removeItem(com.github.abhijit.placefinder.R.id.action_map_view);
+            menu.removeItem(R.id.action_map_view);
         else if (currentView.equals(FragmentList.TAG))
-            menu.removeItem(com.github.abhijit.placefinder.R.id.action_list_view);
+            menu.removeItem(R.id.action_list_view);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -164,10 +156,10 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == com.github.abhijit.placefinder.R.id.action_list_view) {
+        if (id == R.id.action_list_view) {
             switchToListView();
             return true;
-        } else if (id == com.github.abhijit.placefinder.R.id.action_map_view) {
+        } else if (id == R.id.action_map_view) {
             switchToMapView();
             return true;
         } else if (id == android.R.id.home) {
@@ -182,22 +174,16 @@ public class MainActivity extends AppCompatActivity
 
     public void switchToMapView() {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-
         addFragments(fragmentTransaction);
-
         fragmentTransaction.show(fragmentMap).hide(fragmentList).commit();
-
         currentView = FragmentMap.TAG;
         invalidateOptionsMenu();
     }
 
     public void switchToListView() {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-
         addFragments(fragmentTransaction);
-
         fragmentTransaction.show(fragmentList).hide(fragmentMap).commit();
-
         currentView = FragmentList.TAG;
         invalidateOptionsMenu();
     }
@@ -267,7 +253,12 @@ public class MainActivity extends AppCompatActivity
         cameraMoveRunnable = new Runnable() {
             @Override
             public void run() {
-                presenter.getPlaces(latLng);
+                String query = searchView.getQuery().toString();
+                if (!TextUtils.isEmpty(query)){
+                    presenter.searchPlaces(query, latLng);
+                } else {
+                    presenter.getPlaces(latLng);
+                }
             }
         };
         handler.postDelayed(cameraMoveRunnable, CAMERA_MOVE_DELAY);

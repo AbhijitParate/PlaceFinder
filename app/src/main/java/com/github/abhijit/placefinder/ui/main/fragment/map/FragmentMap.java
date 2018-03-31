@@ -1,4 +1,4 @@
-package com.github.abhijit.placefinder.ui.fragment.map;
+package com.github.abhijit.placefinder.ui.main.fragment.map;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,9 +10,9 @@ import android.view.ViewGroup;
 import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.retrofit.models.Places;
 import com.github.abhijit.placefinder.retrofit.models.Result;
-import com.github.abhijit.placefinder.ui.OnFragmentAttachListener;
-import com.github.abhijit.placefinder.ui.OnResultListener;
-import com.github.abhijit.placefinder.ui.fragment.detail.FragmentPlaceDetail;
+import com.github.abhijit.placefinder.ui.main.OnFragmentAttachListener;
+import com.github.abhijit.placefinder.ui.main.OnResultListener;
+import com.github.abhijit.placefinder.ui.main.fragment.detail.FragmentPlaceDetail;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -131,6 +131,13 @@ public class FragmentMap extends Fragment
             CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(15.0f).build();
             googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         }
+        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                marker.showInfoWindow();
+                return true;
+            }
+        });
         googleMap.setOnInfoWindowClickListener(this);
         googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
             @Override

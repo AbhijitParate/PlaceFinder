@@ -1,4 +1,4 @@
-package com.github.abhijit.placefinder.ui.fragment.list;
+package com.github.abhijit.placefinder.ui.main.fragment.list;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;

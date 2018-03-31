@@ -1,10 +1,10 @@
-package com.github.abhijit.placefinder.ui;
+package com.github.abhijit.placefinder.ui.main;
 
 import android.location.Location;
 
 import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.base.BasePresenter;
-import com.github.abhijit.placefinder.data.placesclient.PlacesClient;
+import com.github.abhijit.placefinder.data.placesclient.WebService;
 import com.github.abhijit.placefinder.data.scheduler.SchedulerProviderImpl;
 import com.github.abhijit.placefinder.retrofit.models.Places;
 import com.google.android.gms.maps.model.LatLng;
@@ -12,13 +12,13 @@ import com.google.android.gms.maps.model.LatLng;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.observers.DisposableMaybeObserver;
 
-public class MainPresenter extends BasePresenter<MainContract.View> implements MainContract.Presenter {
+class MainPresenter extends BasePresenter<MainContract.View> implements MainContract.Presenter {
 
     private static final String TAG = MainPresenter.class.getSimpleName();
 
     private static final int DEFAULT_RADIUS = 1000;
 
-    MainPresenter(MainContract.View view, PlacesClient client, SchedulerProviderImpl scheduler) {
+    MainPresenter(MainContract.View view, WebService client, SchedulerProviderImpl scheduler) {
         super(view, client, scheduler);
         checkForLocationPermission();
     }

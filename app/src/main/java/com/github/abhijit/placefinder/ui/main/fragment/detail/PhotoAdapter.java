@@ -1,4 +1,4 @@
-package com.github.abhijit.placefinder.ui.fragment.detail;
+package com.github.abhijit.placefinder.ui.main.fragment.detail;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;

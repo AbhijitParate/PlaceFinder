@@ -13,22 +13,22 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class PlacesClientImpl implements PlacesClient {
+public class WebServiceImpl implements WebService {
 
-    private static final String TAG = PlacesClientImpl.class.getSimpleName();
+    private static final String TAG = WebServiceImpl.class.getSimpleName();
 
-    private static PlacesClientImpl client;
+    private static WebServiceImpl client;
     private Api api;
 
-    private PlacesClientImpl() {
+    private WebServiceImpl() {
         if (api == null) {
             api = RetroFitInstance.getRetrofit().create(Api.class);
         }
     }
 
-    public static PlacesClientImpl getClient() {
+    public static WebServiceImpl getClient() {
         if (client == null){
-            client = new PlacesClientImpl();
+            client = new WebServiceImpl();
         }
         return client;
     }
@@ -41,7 +41,7 @@ public class PlacesClientImpl implements PlacesClient {
                 api.getPlaces(lat + "," + lng, radius)
                         .enqueue( new Callback<Places>() {
                             @Override
-                            public void onResponse(@android.support.annotation.NonNull Call<Places> call, @android.support.annotation.NonNull Response<Places> response) {
+                            public void onResponse(@android.support.annotation.NonNull @NonNull Call<Places> call, @android.support.annotation.NonNull Response<Places> response) {
                                 e.onSuccess(response.body());
                                 e.onComplete();
                             }

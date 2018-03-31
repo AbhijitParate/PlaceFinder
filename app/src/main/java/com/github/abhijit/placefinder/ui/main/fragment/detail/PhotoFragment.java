@@ -1,4 +1,4 @@
-package com.github.abhijit.placefinder.ui.fragment.detail;
+package com.github.abhijit.placefinder.ui.main.fragment.detail;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;

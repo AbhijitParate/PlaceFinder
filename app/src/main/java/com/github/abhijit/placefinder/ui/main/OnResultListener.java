@@ -1,4 +1,4 @@
-package com.github.abhijit.placefinder.ui;
+package com.github.abhijit.placefinder.ui.main;
 
 import com.github.abhijit.placefinder.retrofit.models.Places;
 
