@@ -4,8 +4,10 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
+import android.support.design.widget.BottomSheetDialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +16,9 @@ import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-import com.github.abhijit.placefinder.utils.GlideUtils;
 import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.retrofit.models.Result;
+import com.github.abhijit.placefinder.utils.GlideUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,9 +27,10 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class DetailsFragment extends DialogFragment {
+public class FragmentPlaceDetail extends BottomSheetDialogFragment {
 
-    public static final String KEY_RESULT = "KEY_RESULT";
+    private static final String TAG = FragmentPlaceDetail.class.getName();
+    private static final String KEY_RESULT = "KEY_RESULT";
 
     @BindView(R.id.tvTitle)
     TextView tvTitle;
@@ -50,16 +53,20 @@ public class DetailsFragment extends DialogFragment {
     Geocoder geocoder;
     Result result;
 
-    public DetailsFragment() {
+    public FragmentPlaceDetail() { }
 
-    }
-
-    public static DetailsFragment newInstance(Result result) {
+    public static FragmentPlaceDetail newInstance(Result result) {
         Bundle args = new Bundle();
         args.putParcelable(KEY_RESULT, result);
-        DetailsFragment fragment = new DetailsFragment();
+        FragmentPlaceDetail fragment = new FragmentPlaceDetail();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     @Override
@@ -71,7 +78,7 @@ public class DetailsFragment extends DialogFragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         // Set title for this dialog
         getDialog().setTitle(result.getName());
 
@@ -96,14 +103,18 @@ public class DetailsFragment extends DialogFragment {
             if (address.getPhone() != null && !address.getPhone().isEmpty()){
                 tvContact.setText(address.getPhone());
             } else {
-                tvContact.setText("Not available");
+                tvContact.setText(R.string.label_not_available);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         if (result.getPhotos() != null && result.getPhotos().size() > 0){
-            GlideUtils.load("https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key=AIzaSyB-bpw0ollWA5AKpT11Y2CL2qPFs4kC_dk&" + "photoreference=" + result.getPhotos().get(0).getPhotoReference(), imageContainer);
+            GlideUtils.load(result.getPhotos().get(0).getPhotoReference(), imageContainer);
         }
+    }
+
+    public void show(FragmentManager manager) {
+        show(manager, TAG);
     }
 }

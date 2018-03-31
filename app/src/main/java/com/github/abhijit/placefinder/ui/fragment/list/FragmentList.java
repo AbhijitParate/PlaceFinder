@@ -1,8 +1,10 @@
 package com.github.abhijit.placefinder.ui.fragment.list;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,19 +15,23 @@ import com.github.abhijit.placefinder.retrofit.models.Places;
 import com.github.abhijit.placefinder.retrofit.models.Result;
 import com.github.abhijit.placefinder.ui.OnFragmentAttachListener;
 import com.github.abhijit.placefinder.ui.OnResultListener;
-import com.github.abhijit.placefinder.ui.fragment.detail.DetailsFragment;
+import com.github.abhijit.placefinder.ui.fragment.detail.FragmentPlaceDetail;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class FragmentList extends Fragment implements OnResultListener, PlaceAdapter.OnPlaceClickListener {
+public class FragmentList extends Fragment implements OnResultListener, PlaceAdapter.OnPlaceClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     public static final String TAG = FragmentList.class.getName();
+
+
+    @BindView(R.id.swipeRefreshLayout)
+    SwipeRefreshLayout swipeRefreshLayout;
 
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
 
-    OnFragmentAttachListener listener;
+    private PlaceAdapter placeAdapter;
 
     public static FragmentList newInstance() {
 
@@ -36,12 +42,16 @@ public class FragmentList extends Fragment implements OnResultListener, PlaceAda
         return fragment;
     }
 
-    public FragmentList() {
+    public FragmentList() { /* empty public constructor required by Android */}
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(com.github.abhijit.placefinder.R.layout.fragment_list, container, false);
         ButterKnife.bind(this, v);
@@ -51,25 +61,30 @@ public class FragmentList extends Fragment implements OnResultListener, PlaceAda
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        setRetainInstance(true);
-        listener = (OnFragmentAttachListener) getActivity();
+        swipeRefreshLayout.setOnRefreshListener(this);
+        placeAdapter = new PlaceAdapter(this);
+        recyclerView.setAdapter(placeAdapter);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        listener.onFragmentAttach(this);
+        ((OnFragmentAttachListener) getActivity()).onFragmentAttach(this);
     }
 
     @Override
     public void onResultReady(Places places) {
-        if (places != null) {
-            recyclerView.setAdapter(new PlaceAdapter(getActivity(), this, places.getResults()));
-        }
+        placeAdapter.updateDataSet(places.getResults());
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
     public void onPlaceClicked(Result result) {
-        DetailsFragment.newInstance(result).show(getFragmentManager(), "Details");
+        FragmentPlaceDetail.newInstance(result).show(getChildFragmentManager());
+    }
+
+    @Override
+    public void onRefresh() {
+        ((OnFragmentAttachListener) getActivity()).refreshPlaces();
     }
 }

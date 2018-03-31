@@ -12,7 +12,7 @@ import com.github.abhijit.placefinder.retrofit.models.Places;
 import com.github.abhijit.placefinder.retrofit.models.Result;
 import com.github.abhijit.placefinder.ui.OnFragmentAttachListener;
 import com.github.abhijit.placefinder.ui.OnResultListener;
-import com.github.abhijit.placefinder.ui.fragment.detail.DetailsFragment;
+import com.github.abhijit.placefinder.ui.fragment.detail.FragmentPlaceDetail;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -23,6 +23,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,20 +42,18 @@ public class FragmentMap extends Fragment
     @BindView(R.id.mapView)
     MapView mapView;
 
-    private OnFragmentAttachListener listener;
-    private List<Result> placeList;
-    private Map<Marker, Result> markerMap;
+    private boolean isMapInitialized = false;
+    private List<Result> placeList = new ArrayList<>();
+    private Map<Marker, Result> markerMap = new HashMap<>();
 
     public static FragmentMap newInstance() {
-
         Bundle args = new Bundle();
-
         FragmentMap fragment = new FragmentMap();
         fragment.setArguments(args);
         return fragment;
     }
 
-    public FragmentMap() { }
+    public FragmentMap() { /* empty public constructor required by Android */ }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -68,54 +67,57 @@ public class FragmentMap extends Fragment
     @Override
     public void onStart() {
         super.onStart();
-        listener = (OnFragmentAttachListener) getActivity();
-        listener.onFragmentAttach(this);
         mapView.onStart();
+        ((OnFragmentAttachListener) getActivity()).onFragmentAttach(this);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (mapView != null) mapView.onResume();
+        mapView.onResume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (mapView != null) mapView.onPause();
+        mapView.onPause();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (mapView != null) mapView.onStop();
+        mapView.onStop();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mapView != null) mapView.onDestroy();
+        mapView.onDestroy();
     }
 
     @Override
     public void onResultReady(Places places) {
-        placeList = places.getResults();
-        markerMap = new HashMap<>();
+        placeList.clear();
+        placeList.addAll(places.getResults());
+        markerMap.clear();
         mapView.getMapAsync(this);
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(final GoogleMap googleMap) {
         double lat = 0, lng = 0;
-        for (Result result : placeList){
+
+        googleMap.clear();
+
+        for (Result result : placeList) {
 
             lat += result.getGeometry().getLocation().getLat();
             lng += result.getGeometry().getLocation().getLng();
 
             MarkerOptions markerOptions = new MarkerOptions()
                     .position(new LatLng(
-                        result.getGeometry().getLocation().getLat(),
-                        result.getGeometry().getLocation().getLng())
+                            result.getGeometry().getLocation().getLat(),
+                            result.getGeometry().getLocation().getLng())
                     )
                     .title(result.getName())
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
@@ -124,15 +126,24 @@ public class FragmentMap extends Fragment
             markerMap.put(m, result);
         }
 
-        LatLng latLng = new LatLng(lat/placeList.size(), lng/placeList.size());
-        CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(15.0f).build();
-        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        if (!isMapInitialized) {
+            LatLng latLng = new LatLng(lat / placeList.size(), lng / placeList.size());
+            CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(15.0f).build();
+            googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
         googleMap.setOnInfoWindowClickListener(this);
+        googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+            @Override
+            public void onCameraMove() {
+                ((OnFragmentAttachListener) getActivity()).onMapMoved(googleMap.getCameraPosition().target);
+            }
+        });
+        isMapInitialized = true;
     }
 
     @Override
     public void onInfoWindowClick(Marker marker) {
         Result result = markerMap.get(marker);
-        DetailsFragment.newInstance(result).show(getChildFragmentManager(), "Details");
+        FragmentPlaceDetail.newInstance(result).show(getChildFragmentManager());
     }
 }

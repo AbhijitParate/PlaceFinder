@@ -11,10 +11,13 @@ import com.github.abhijit.placefinder.R;
 
 public class GlideUtils {
 
-    public static void load(@Nullable Object what, ImageView where) {
+    private static final String KEY = "AIzaSyB-bpw0ollWA5AKpT11Y2CL2qPFs4kC_dk";
+    private static final String BASE_URL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key=" + KEY + "&photoreference=";
+
+    public static void load(@Nullable String what, ImageView where) {
         Glide.with(where.getContext())
                 .setDefaultRequestOptions(new GlideRequestOptions())
-                .load(what)
+                .load(BASE_URL + what)
                 .transition(GenericTransitionOptions.with(android.R.anim.fade_in))
                 .into(where);
     }

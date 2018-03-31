@@ -1,6 +1,6 @@
 package com.github.abhijit.placefinder.ui.fragment.list;
 
-import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,10 +9,11 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-import com.github.abhijit.placefinder.utils.GlideUtils;
 import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.retrofit.models.Result;
+import com.github.abhijit.placefinder.utils.GlideUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -20,24 +21,27 @@ import butterknife.ButterKnife;
 
 public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHolder> {
 
-    private List<Result> placeList;
-    private Context context;
+    private List<Result> placeList = new ArrayList<>();
     private OnPlaceClickListener placeClickListener;
 
-    public PlaceAdapter(Context context, OnPlaceClickListener listener, List<Result> places) {
-        this.context = context;
+    PlaceAdapter(OnPlaceClickListener listener) {
         this.placeClickListener = listener;
-        this.placeList = places;
     }
 
     @Override
-    public PlaceViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public int getItemViewType(int position) {
+        return super.getItemViewType(position);
+    }
+
+    @NonNull
+    @Override
+    public PlaceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.place_card, parent, false);
         return new PlaceViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(PlaceViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull PlaceViewHolder holder, int position) {
         Result r = placeList.get(position);
         holder.tvName.setText(r.getName());
         if (r.getRating() != null) {
@@ -47,7 +51,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
             holder.ratingBar.setVisibility(View.GONE);
         }
         if (r.getPhotos() != null && r.getPhotos().size() > 0) {
-            GlideUtils.load("https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key=AIzaSyB-bpw0ollWA5AKpT11Y2CL2qPFs4kC_dk&photoreference=" + r.getPhotos().get(0).getPhotoReference(), holder.placeImageView);
+            GlideUtils.load(r.getPhotos().get(0).getPhotoReference(), holder.placeImageView);
         }
         holder.bindClickListener();
     }
@@ -55,6 +59,12 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
     @Override
     public int getItemCount() {
         return placeList.size();
+    }
+
+    public void updateDataSet(List<Result> results) {
+        placeList.clear();
+        placeList.addAll(results);
+        notifyDataSetChanged();
     }
 
     class PlaceViewHolder extends RecyclerView.ViewHolder {

@@ -9,14 +9,14 @@ import io.reactivex.observers.DisposableMaybeObserver;
 
 public class BasePresenter<V extends BaseContract.View> {
 
-    protected V view;
-    protected PlacesClient client;
+    private V view;
+    private PlacesClient placesClient;
     private SchedulerProvider schedulerProvider;
     private CompositeDisposable disposable;
 
     public BasePresenter(V view, PlacesClient client, SchedulerProvider schedulerProvider) {
         this.view = view;
-        this.client = client;
+        this.placesClient = client;
         this.schedulerProvider = schedulerProvider;
         this.disposable = new CompositeDisposable();
     }
@@ -34,5 +34,13 @@ public class BasePresenter<V extends BaseContract.View> {
                 .subscribeOn(schedulerProvider.io())
                 .observeOn(schedulerProvider.ui())
                 .subscribeWith(disposableMaybeObserver));
+    }
+
+    public PlacesClient getPlacesClient() {
+        return placesClient;
+    }
+
+    public V getView() {
+        return view;
     }
 }

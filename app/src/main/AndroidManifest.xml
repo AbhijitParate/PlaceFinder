@@ -28,6 +28,7 @@
         <activity
             android:name="com.github.abhijit.placefinder.ui.MainActivity"
             android:label="@string/app_name"
+            android:configChanges="orientation"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

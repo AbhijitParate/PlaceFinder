@@ -5,4 +5,5 @@
     <string name="message_permission_denied">Location permission denied</string>
     <string name="message_failed_to_get_places">Failed to get places</string>
     <string name="message_no_places_found">No places found</string>
+    <string name="label_not_available">Not available</string>
 </resources>

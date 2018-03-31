@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -13,6 +14,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -25,6 +28,7 @@ import com.github.abhijit.placefinder.ui.fragment.map.FragmentMap;
 import com.github.abhijit.placefinder.ui.view.CustomSearchView;
 import com.github.abhijit.placefinder.utils.LocationUtils;
 import com.github.abhijit.placefinder.utils.PermissionUtils;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -37,10 +41,10 @@ public class MainActivity extends AppCompatActivity
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    public static final int REQUEST_CODE_LOCATION_PERMISSION = 345;
+    private static final int CAMERA_MOVE_DELAY = 1000; // 1 Seconds delay
+    private static final int REQUEST_CODE_LOCATION_PERMISSION = 345;
 
     private Set<OnResultListener> resultListeners = new HashSet<>();
-    private Places places;
     private SearchView searchView;
     private String currentView = FragmentList.TAG;
 
@@ -48,21 +52,45 @@ public class MainActivity extends AppCompatActivity
 
     private Fragment fragmentList, fragmentMap;
 
-    protected void onCreate(Bundle savedInstanceState) {
+    private Handler handler = new Handler();
+    private Runnable cameraMoveRunnable;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate() called with: savedInstanceState = [" + savedInstanceState + "]");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         if (presenter == null) {
             presenter = new MainPresenter(this, ClientInjector.getClient(), SchedulerInjector.getScheduler());
         }
+        loadFragments();
+    }
 
-        switchToListView();
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(TAG, "onRestart() called");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume() called");
     }
 
     @Override
     protected void onStart() {
+        Log.d(TAG, "onStart() called");
         super.onStart();
         presenter.subscribe();
+    }
+
+    private void loadFragments() {
+        if (currentView.equals(FragmentList.TAG)) {
+            switchToListView();
+        } else {
+            switchToMapView();
+        }
     }
 
     @Override
@@ -76,7 +104,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause() called");
+    }
+
+    @Override
     protected void onStop() {
+        Log.d(TAG, "onStop() called");
         super.onStop();
         presenter.unsubscribe();
     }
@@ -147,17 +182,8 @@ public class MainActivity extends AppCompatActivity
 
     public void switchToMapView() {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentMap = getSupportFragmentManager().findFragmentByTag(FragmentMap.TAG);
-        if (fragmentMap == null) {
-            fragmentMap = FragmentMap.newInstance();
-            fragmentTransaction.add(R.id.fragment_container, fragmentMap, FragmentMap.TAG);
-        }
 
-        fragmentList = getSupportFragmentManager().findFragmentByTag(FragmentList.TAG);
-        if (fragmentList == null) {
-            fragmentList = FragmentList.newInstance();
-            fragmentTransaction.add(R.id.fragment_container, fragmentList, FragmentList.TAG);
-        }
+        addFragments(fragmentTransaction);
 
         fragmentTransaction.show(fragmentMap).hide(fragmentList).commit();
 
@@ -165,36 +191,10 @@ public class MainActivity extends AppCompatActivity
         invalidateOptionsMenu();
     }
 
-//    private void loadFragment(Fragment fragment, String fragmentTag, EnterTransition transition) {
-//        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-//        if (EnterTransition.RIGHT == transition) {
-//            ft.setCustomAnimations(R.anim.slide_enter_from_right, R.anim.slide_exit_to_left);
-//        } else if (EnterTransition.LEFT == transition) {
-//            ft.setCustomAnimations(R.anim.slide_enter_from_left, R.anim.slide_exit_to_right);
-//        }
-//        if (!fragment.isAdded()) {
-//            ft.add(R.id.fragment_container, fragment, fragmentTag);
-//        }
-//        ft.show(fragment);
-//        ft.commit();
-//        currentView = fragmentTag;
-//        invalidateOptionsMenu();
-//    }
-
     public void switchToListView() {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
-        fragmentList = getSupportFragmentManager().findFragmentByTag(FragmentList.TAG);
-        if (fragmentList == null) {
-            fragmentList = FragmentList.newInstance();
-            fragmentTransaction.add(R.id.fragment_container, fragmentList, FragmentList.TAG);
-        }
-
-        fragmentMap = getSupportFragmentManager().findFragmentByTag(FragmentMap.TAG);
-        if (fragmentMap == null) {
-            fragmentMap = FragmentMap.newInstance();
-            fragmentTransaction.add(R.id.fragment_container, fragmentMap, FragmentMap.TAG);
-        }
+        addFragments(fragmentTransaction);
 
         fragmentTransaction.show(fragmentList).hide(fragmentMap).commit();
 
@@ -202,9 +202,22 @@ public class MainActivity extends AppCompatActivity
         invalidateOptionsMenu();
     }
 
+    private void addFragments(FragmentTransaction fragmentTransaction) {
+        fragmentMap = getSupportFragmentManager().findFragmentByTag(FragmentMap.TAG);
+        if (fragmentMap == null) {
+            fragmentMap = FragmentMap.newInstance();
+            fragmentTransaction.add(R.id.fragment_container, fragmentMap, FragmentMap.TAG);
+        }
+
+        fragmentList = getSupportFragmentManager().findFragmentByTag(FragmentList.TAG);
+        if (fragmentList == null) {
+            fragmentList = FragmentList.newInstance();
+            fragmentTransaction.add(R.id.fragment_container, fragmentList, FragmentList.TAG);
+        }
+    }
+
     @Override
     public void setPlaces(Places places) {
-        this.places = places;
         for (OnResultListener l : resultListeners) {
             l.onResultReady(places);
         }
@@ -221,7 +234,8 @@ public class MainActivity extends AppCompatActivity
         setTitle(query);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        presenter.searchPlaces(query);
+        Location lastKnownLocation = getLastKnownLocation();
+        presenter.searchPlaces(query, new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
         return true;
     }
 
@@ -233,5 +247,29 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onFragmentAttach(OnResultListener listener) {
         this.resultListeners.add(listener);
+    }
+
+    @Override
+    public void refreshPlaces() {
+        String query = searchView.getQuery().toString();
+        if (!TextUtils.isEmpty(query)) {
+            Location lastKnownLocation = getLastKnownLocation();
+            presenter.searchPlaces(query, new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
+        } else {
+            Location lastKnownLocation = getLastKnownLocation();
+            presenter.getPlaces(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
+        }
+    }
+
+    @Override
+    public void onMapMoved(final LatLng latLng) {
+        handler.removeCallbacks(cameraMoveRunnable);
+        cameraMoveRunnable = new Runnable() {
+            @Override
+            public void run() {
+                presenter.getPlaces(latLng);
+            }
+        };
+        handler.postDelayed(cameraMoveRunnable, CAMERA_MOVE_DELAY);
     }
 }
