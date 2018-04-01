@@ -2,8 +2,10 @@ package com.github.abhijit.placefinder.data.web;
 
 import android.support.annotation.NonNull;
 
+import com.github.abhijit.placefinder.data.web.models.PlaceDetails;
 import com.github.abhijit.placefinder.data.web.models.Places;
 
+import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeEmitter;
 import io.reactivex.MaybeOnSubscribe;
@@ -16,7 +18,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 class WebServiceImpl implements WebService {
 
-//    private static final String TAG = WebServiceImpl.class.getSimpleName();
+    private static final String TAG = WebServiceImpl.class.getSimpleName();
 
     private Api api;
 
@@ -32,13 +34,15 @@ class WebServiceImpl implements WebService {
                 api.getPlaces(lat + "," + lng, radius)
                         .enqueue(new Callback<Places>() {
                                      @Override
-                                     public void onResponse(@NonNull Call<Places> call, @NonNull Response<Places> response) {
+                                     public void onResponse(@NonNull Call<Places> call,
+                                                            @NonNull Response<Places> response) {
                                          e.onSuccess(response.body());
                                          e.onComplete();
                                      }
 
                                      @Override
-                                     public void onFailure(@NonNull Call<Places> call, @NonNull Throwable t) {
+                                     public void onFailure(@NonNull Call<Places> call,
+                                                           @NonNull Throwable t) {
                                          e.onError(t);
                                      }
                                  }
@@ -55,13 +59,15 @@ class WebServiceImpl implements WebService {
                 api.searchPlaces(String.format("%s,%s", lat, lng), radius, query)
                         .enqueue(new Callback<Places>() {
                                      @Override
-                                     public void onResponse(@NonNull Call<Places> call, @NonNull Response<Places> response) {
+                                     public void onResponse(@NonNull Call<Places> call,
+                                                            @NonNull Response<Places> response) {
                                          e.onSuccess(response.body());
                                          e.onComplete();
                                      }
 
                                      @Override
-                                     public void onFailure(@NonNull Call<Places> call, @NonNull Throwable t) {
+                                     public void onFailure(@NonNull Call<Places> call,
+                                                           @NonNull Throwable t) {
                                          e.onError(t);
                                      }
                                  }
@@ -78,14 +84,42 @@ class WebServiceImpl implements WebService {
                 api.getNextPlaces(nextPageToken)
                         .enqueue(new Callback<Places>() {
                             @Override
-                            public void onResponse(@NonNull Call<Places> call, @NonNull Response<Places> response) {
+                            public void onResponse(@NonNull Call<Places> call,
+                                                   @NonNull Response<Places> response) {
                                 if (response.isSuccessful()) {
                                     e.onSuccess(response.body());
                                 }
                             }
 
                             @Override
-                            public void onFailure(@NonNull Call<Places> call, @NonNull Throwable t) {
+                            public void onFailure(@NonNull Call<Places> call,
+                                                  @NonNull Throwable t) {
+                                e.onError(t);
+                            }
+                        });
+            }
+        });
+    }
+
+    @Override
+    public Maybe<PlaceDetails> getPlaceDetails(final String placeId) {
+        return Maybe.create(new MaybeOnSubscribe<PlaceDetails>() {
+            @Override
+            public void subscribe(final MaybeEmitter<PlaceDetails> e) {
+                api.getPlaceDetails(placeId)
+                        .enqueue(new Callback<PlaceDetails>() {
+                            @Override
+                            public void onResponse(@NonNull Call<PlaceDetails> call,
+                                                   @NonNull Response<PlaceDetails> response) {
+                                if (response.isSuccessful()){
+                                    e.onSuccess(response.body());
+                                }
+
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull Call<PlaceDetails> call,
+                                                  @NonNull Throwable t) {
                                 e.onError(t);
                             }
                         });

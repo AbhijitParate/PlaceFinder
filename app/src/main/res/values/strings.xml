@@ -7,4 +7,7 @@
     <string name="message_no_places_found">No places found</string>
     <string name="label_not_available">Not available</string>
     <string name="message_api_issue">Check API.</string>
+    <string name="label_reviews">Reviews</string>
+    <string name="label_photos">Photos</string>
+    <string name="cd_restaurant_image">Restaurant Image</string>
 </resources>

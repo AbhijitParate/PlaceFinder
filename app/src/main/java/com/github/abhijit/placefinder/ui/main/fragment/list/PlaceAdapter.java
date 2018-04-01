@@ -68,7 +68,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 ((PlaceViewHolder) holder).ratingBar.setVisibility(View.GONE);
             }
             if (r.getPhotos() != null && r.getPhotos().size() > 0) {
-                GlideUtils.load(r.getPhotos().get(0).getPhotoReference(), ((PlaceViewHolder) holder).placeImageView);
+                GlideUtils.load(GlideUtils.PHOTO_BASE_URL + r.getPhotos().get(0).getPhotoReference(), ((PlaceViewHolder) holder).placeImageView);
             }
             ((PlaceViewHolder) holder).bindClickListener();
             if (position == placeList.size() - 1) {

@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:fitsSystemWindows="true">
+
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/collapsingToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            android:fitsSystemWindows="true"
+            app:contentScrim="?attr/colorPrimary"
+            app:expandedTitleMarginStart="48dp"
+            app:expandedTitleMarginEnd="64dp"
+            tools:title="Restaurant Name">
+
+            <ImageView
+                android:id="@+id/placeImageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/cd_restaurant_image"                android:scaleType="centerCrop"
+                android:fitsSystemWindows="true"
+                app:layout_collapseMode="parallax"
+                app:srcCompat="@mipmap/ic_launcher" />
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="wrap_content"
+                android:layout_height="?actionBarSize"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                app:layout_collapseMode="pin" />
+
+        </android.support.design.widget.CollapsingToolbarLayout>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:context="com.github.abhijit.placefinder.ui.main.fragment.details.FragmentPlaceDetails">
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="0dp"
+                android:layout_height="?actionBarSize"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:gravity="center_vertical"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="My Heart Pizza" />
+
+            <RatingBar
+                android:id="@+id/ratingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:rating="3"
+                android:theme="@style/RatingBar"
+                app:layout_constraintStart_toStartOf="@+id/tvTitle"
+                app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+
+
+            <TextView
+                android:id="@+id/tvReviewCount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/ratingBar"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/ratingBar"
+                app:layout_constraintTop_toTopOf="@+id/ratingBar"
+                tools:text="123 reviews" />
+
+            <TextView
+                android:id="@+id/tvTags"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/tvTitle"
+                app:layout_constraintTop_toBottomOf="@+id/ratingBar"
+                tools:text="Food Truck, Mexican" />
+
+            <View
+                android:id="@+id/horizontalLine"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="8dp"
+                android:background="@android:color/darker_gray"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvTags" />
+
+
+            <TextView
+                android:id="@+id/tvAddress"
+                android:layout_width="0dp"
+                android:layout_height="?actionBarSize"
+                android:layout_margin="8dp"
+                android:drawableStart="@android:drawable/ic_menu_directions"
+                android:gravity="center_vertical"
+                android:maxLines="2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/horizontalLine"
+                tools:text="355 Serrano Dr, San Francisco CA-94132" />
+
+            <TextView
+                android:id="@+id/tvContact"
+                android:layout_width="0dp"
+                android:layout_height="?actionBarSize"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:drawableStart="@android:drawable/ic_menu_call"
+                android:gravity="center_vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvAddress"
+                tools:text="(415) 234-9723" />
+
+            <TextView
+                android:id="@+id/labelPhotos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/label_photos"
+                android:textColor="@android:color/black"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvContact" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/photoList"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:clipToPadding="true"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/labelPhotos" />
+
+            <TextView
+                android:id="@+id/labelReviews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/label_reviews"
+                android:textColor="@android:color/black"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/photoList" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/reviewList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:clipToPadding="true"
+                android:paddingBottom="60dp"
+                app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/labelReviews" />
+
+        </android.support.constraint.ConstraintLayout>
+    </android.support.v4.widget.NestedScrollView>
+</android.support.design.widget.CoordinatorLayout>

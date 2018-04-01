@@ -1,5 +1,6 @@
 package com.github.abhijit.placefinder.data.web;
 
+import com.github.abhijit.placefinder.data.web.models.PlaceDetails;
 import com.github.abhijit.placefinder.data.web.models.Places;
 
 import retrofit2.Call;
@@ -21,4 +22,8 @@ public interface Api {
 
     @GET("/maps/api/place/nearbysearch/json?key=" + KEY)
     Call<Places> getNextPlaces(@Query("pagetoken") String nextPageToken);
+
+
+    @GET("/maps/api/place/details/json?key=" + KEY)
+    Call<PlaceDetails> getPlaceDetails(@Query("placeid") String nextPageToken);
 }

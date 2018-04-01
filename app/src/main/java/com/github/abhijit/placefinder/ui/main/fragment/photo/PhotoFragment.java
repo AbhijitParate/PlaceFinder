@@ -1,4 +1,4 @@
-package com.github.abhijit.placefinder.ui.main.fragment.detail;
+package com.github.abhijit.placefinder.ui.main.fragment.photo;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.github.abhijit.placefinder.R;
-import com.github.abhijit.placefinder.data.web.models.Places;
+import com.github.abhijit.placefinder.data.web.models.Photo;
 import com.github.abhijit.placefinder.utils.GlideUtils;
 
 import butterknife.BindView;
@@ -24,7 +24,7 @@ public class PhotoFragment extends Fragment {
 
     String photoReference;
 
-    public static PhotoFragment getInstance(Places.Result.Photo photo) {
+    public static PhotoFragment getInstance(Photo photo) {
         PhotoFragment f = new PhotoFragment();
         Bundle args = new Bundle();
         args.putString(KEY_PHOTO_REFERENCE, photo.getPhotoReference());
@@ -50,7 +50,7 @@ public class PhotoFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        GlideUtils.load(photoReference, photo);
+        GlideUtils.load(GlideUtils.PHOTO_BASE_URL + photoReference, photo);
     }
 
     @Override

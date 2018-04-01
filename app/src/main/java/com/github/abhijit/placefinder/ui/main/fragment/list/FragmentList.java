@@ -14,7 +14,7 @@ import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.data.web.models.Places;
 import com.github.abhijit.placefinder.ui.main.OnFragmentAttachListener;
 import com.github.abhijit.placefinder.ui.main.ResultListener;
-import com.github.abhijit.placefinder.ui.main.fragment.detail.FragmentPlaceDetail;
+import com.github.abhijit.placefinder.ui.main.fragment.details.FragmentPlaceDetails;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -54,7 +54,7 @@ public class FragmentList extends Fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View v = inflater.inflate(com.github.abhijit.placefinder.R.layout.fragment_list, container, false);
+        View v = inflater.inflate(R.layout.fragment_list, container, false);
         ButterKnife.bind(this, v);
         return v;
     }
@@ -91,7 +91,7 @@ public class FragmentList extends Fragment
 
     @Override
     public void onPlaceClicked(Places.Result result) {
-        FragmentPlaceDetail.newInstance(result).show(getChildFragmentManager());
+        FragmentPlaceDetails.newInstance(result).show(getChildFragmentManager());
     }
 
     @Override
