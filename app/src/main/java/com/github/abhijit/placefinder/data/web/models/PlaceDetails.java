@@ -37,6 +37,9 @@ public class PlaceDetails {
         @SerializedName("reviews")
         private List<Review> review;
 
+        @SerializedName("geometry")
+        private Geometry geometry;
+
         public String getName() {
             return name;
         }
@@ -59,6 +62,10 @@ public class PlaceDetails {
 
         public List<Review> getReview() {
             return review;
+        }
+
+        public Geometry getGeometry() {
+            return geometry;
         }
 
         public static class Review {

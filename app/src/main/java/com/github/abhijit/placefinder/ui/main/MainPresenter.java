@@ -6,7 +6,9 @@ import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.base.BasePresenter;
 import com.github.abhijit.placefinder.data.scheduler.SchedulerProvider;
 import com.github.abhijit.placefinder.data.web.WebService;
+import com.github.abhijit.placefinder.data.web.models.PlaceDetails;
 import com.github.abhijit.placefinder.data.web.models.Places;
+import com.github.abhijit.placefinder.data.web.models.SearchPredictions;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
@@ -89,9 +91,37 @@ class MainPresenter extends BasePresenter<MainContract.View>
         }
     }
 
+    @Override
+    public void predictionSelected(SearchPredictions.Prediction prediction) {
+        addToDisposable(
+                getWebService().getPlaceDetails(prediction.getPlaceId()),
+                new DisposableMaybeObserver<PlaceDetails>() {
+                    @Override
+                    public void onSuccess(PlaceDetails placeDetails) {
+                        getPlaces(
+                                new LatLng(
+                                        placeDetails.getResult().getGeometry().getLocation().getLat(),
+                                        placeDetails.getResult().getGeometry().getLocation().getLng()
+                                )
+                        );
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        getView().showMessage(R.string.message_failed_to_get_place_details);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                }
+        );
+    }
+
     private void updateNextPageToken(String nextPageToken) {
         this.nextPageToken = nextPageToken;
-        if (TextUtils.isEmpty(nextPageToken)){
+        if (TextUtils.isEmpty(nextPageToken)) {
             getView().notifyNoMorePlaces();
         }
     }

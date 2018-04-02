@@ -2,8 +2,7 @@ package com.github.abhijit.placefinder.ui.main;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.SearchManager;
-import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -27,10 +26,11 @@ import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.data.scheduler.SchedulerInjector;
 import com.github.abhijit.placefinder.data.web.WebServiceInjector;
 import com.github.abhijit.placefinder.data.web.models.Places;
+import com.github.abhijit.placefinder.data.web.models.SearchPredictions;
 import com.github.abhijit.placefinder.ui.main.fragment.details.FragmentPlaceDetails;
 import com.github.abhijit.placefinder.ui.main.fragment.list.FragmentList;
 import com.github.abhijit.placefinder.ui.main.fragment.map.FragmentMap;
-import com.github.abhijit.placefinder.ui.view.CustomSearchView;
+import com.github.abhijit.placefinder.ui.search.SearchActivity;
 import com.github.abhijit.placefinder.utils.PermissionUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    private static final int REQUEST_CODE_SEARCH_ACTIVITY = 646;
     private static final int CAMERA_MOVE_DELAY = 1000; // 1 Seconds delay
     private static final int REQUEST_CODE_LOCATION_PERMISSION = 345;
 
@@ -171,13 +172,13 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(com.github.abhijit.placefinder.R.menu.menu_main, menu);
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        searchView = (CustomSearchView) menu.findItem(R.id.action_search).getActionView();
-
-        if (searchManager != null) {
-            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        }
-        searchView.setOnQueryTextListener(this);
+//        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+//        searchView = (CustomSearchView) menu.findItem(R.id.action_search).getActionView();
+//
+//        if (searchManager != null) {
+//            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+//        }
+//        searchView.setOnQueryTextListener(this);
 
         return true;
     }
@@ -193,7 +194,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        if ((getSupportActionBar().getDisplayOptions() & ActionBar.DISPLAY_HOME_AS_UP) != 0){
+        if ((getSupportActionBar().getDisplayOptions() & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
             resetTitle();
             presenter.getPlaces(null);
         } else super.onBackPressed();
@@ -213,9 +214,25 @@ public class MainActivity extends AppCompatActivity
             case android.R.id.home:
                 resetTitle();
                 return true;
+            case R.id.action_search:
+                startSearchActivity();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void startSearchActivity() {
+        startActivityForResult(SearchActivity.getLauncherIntent(this), REQUEST_CODE_SEARCH_ACTIVITY);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_SEARCH_ACTIVITY  && resultCode == RESULT_OK) {
+            SearchPredictions.Prediction prediction = data.getParcelableExtra(SearchActivity.SEARCH_RESULT);
+            presenter.predictionSelected(prediction);
+        }
     }
 
     private void resetTitle() {

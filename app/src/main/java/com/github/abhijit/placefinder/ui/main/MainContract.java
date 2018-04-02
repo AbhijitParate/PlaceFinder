@@ -4,6 +4,7 @@ import android.support.annotation.StringRes;
 
 import com.github.abhijit.placefinder.base.BaseContract;
 import com.github.abhijit.placefinder.data.web.models.Places;
+import com.github.abhijit.placefinder.data.web.models.SearchPredictions;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
@@ -29,5 +30,6 @@ interface MainContract {
         void locationPermissionGranted();
         void locationPermissionDenied();
         void loadMorePlaces();
+        void predictionSelected(SearchPredictions.Prediction prediction);
     }
 }

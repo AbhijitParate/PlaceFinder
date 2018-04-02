@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import com.github.abhijit.placefinder.data.web.models.PlaceDetails;
 import com.github.abhijit.placefinder.data.web.models.Places;
+import com.github.abhijit.placefinder.data.web.models.SearchPredictions;
 import com.google.android.gms.maps.model.LatLng;
 
 import io.reactivex.Maybe;
@@ -104,6 +105,27 @@ class WebServiceImpl implements WebService {
                             @Override
                             boolean isStatusOK(PlaceDetails placeDetails) {
                                 return placeDetails != null && placeDetails.isStatusOk();
+                            }
+                        });
+            }
+        });
+    }
+
+    @Override
+    public Maybe<SearchPredictions> getSearchResults(final String searchTerm) {
+        return Maybe.create(new MaybeOnSubscribe<SearchPredictions>() {
+            @Override
+            public void subscribe(final MaybeEmitter<SearchPredictions> e) {
+                api.searchNearByPlaces(searchTerm)
+                        .enqueue(new WebCallback<SearchPredictions>(e) {
+                            @Override
+                            String getErrorString(SearchPredictions body) {
+                                return body.getStatus();
+                            }
+
+                            @Override
+                            boolean isStatusOK(SearchPredictions placeDetails) {
+                                return placeDetails != null && placeDetails.isStatusOK();
                             }
                         });
             }
