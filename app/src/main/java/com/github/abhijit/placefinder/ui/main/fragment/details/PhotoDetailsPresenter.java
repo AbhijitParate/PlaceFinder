@@ -17,7 +17,6 @@ final class PhotoDetailsPresenter extends BasePresenter<PhotoDetailsContract.Vie
     PhotoDetailsPresenter(String placeId, PhotoDetailsContract.View view, WebService client, SchedulerProvider schedulerProvider) {
         super(view, client, schedulerProvider);
         this.placeId = placeId;
-        getPlaceDetails();
     }
 
     @Override
@@ -30,7 +29,8 @@ final class PhotoDetailsPresenter extends BasePresenter<PhotoDetailsContract.Vie
         super.unsubscribe();
     }
 
-    private void getPlaceDetails() {
+    @Override
+    public void getPlaceDetails() {
         addToDisposable(
                 getWebService().getPlaceDetails(placeId),
                 new DisposableMaybeObserver<PlaceDetails>() {

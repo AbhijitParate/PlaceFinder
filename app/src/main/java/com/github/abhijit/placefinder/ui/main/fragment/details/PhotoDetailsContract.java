@@ -18,7 +18,7 @@ interface PhotoDetailsContract {
     }
 
     interface Presenter extends BaseContract.Presenter {
-
+        void getPlaceDetails();
     }
 
 }

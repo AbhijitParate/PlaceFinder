@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,6 +22,7 @@ import com.github.abhijit.placefinder.data.web.WebServiceInjector;
 import com.github.abhijit.placefinder.data.web.models.Photo;
 import com.github.abhijit.placefinder.data.web.models.PlaceDetails;
 import com.github.abhijit.placefinder.data.web.models.Places;
+import com.github.abhijit.placefinder.utils.GlideUtils;
 
 import java.util.List;
 
@@ -34,11 +36,11 @@ public class FragmentPlaceDetails extends DialogFragment
     private static final String TAG = FragmentPlaceDetails.class.getName();
     private static final String KEY_RESULT = "KEY_RESULT";
 
-    @BindView(R.id.tvTitle)
-    TextView tvTitle;
-
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+
+    @BindView(R.id.placeImageView)
+    ImageView placeImageView;
 
     @BindView(R.id.ratingBar)
     RatingBar ratingBar;
@@ -94,7 +96,8 @@ public class FragmentPlaceDetails extends DialogFragment
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        tvTitle.setText(result.getName());
+        toolbar.setTitle(result.getName());
+        GlideUtils.load(GlideUtils.PHOTO_BASE_URL + result.getPhotos().get(0).getPhotoReference(), placeImageView);
         if (result.getRating() != null){
             // TODO: 3/31/18 grey out starts if rating is not available
             ratingBar.setRating(Float.valueOf(String.valueOf(result.getRating())));
@@ -102,6 +105,7 @@ public class FragmentPlaceDetails extends DialogFragment
         if (presenter == null) {
             presenter = new PhotoDetailsPresenter(result.getPlaceId(), this, WebServiceInjector.getWebService(), SchedulerInjector.getScheduler());
         }
+        presenter.getPlaceDetails();
     }
 
     @NonNull
@@ -137,7 +141,6 @@ public class FragmentPlaceDetails extends DialogFragment
     @Override
     public void setPlaceTitle(String name) {
         toolbar.setTitle(name);
-        tvTitle.setText(name);
     }
 
     @Override
@@ -165,5 +168,6 @@ public class FragmentPlaceDetails extends DialogFragment
     public void setReviews(List<PlaceDetails.Result.Review> reviews) {
         reviewList.setAdapter(new ReviewAdapter(reviews));
         reviewList.setHasFixedSize(true);
+        tvReviewCount.setText(String.format(getString(R.string.template_review_count), reviews.size()));
     }
 }
