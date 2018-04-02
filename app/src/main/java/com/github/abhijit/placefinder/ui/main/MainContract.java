@@ -1,6 +1,5 @@
 package com.github.abhijit.placefinder.ui.main;
 
-import android.location.Location;
 import android.support.annotation.StringRes;
 
 import com.github.abhijit.placefinder.base.BaseContract;
@@ -14,7 +13,9 @@ interface MainContract {
     interface View extends BaseContract.View {
         boolean hasLocationPermission();
         void requestLocationPermission();
-        Location getLastKnownLocation();
+        void showLocationPermissionDeniedMessage();
+
+        void getUserLocation();
         void showMessage(@StringRes int stringId);
         void setPlaces(List<Places.Result> places);
         void appendPlaces(List<Places.Result> places);

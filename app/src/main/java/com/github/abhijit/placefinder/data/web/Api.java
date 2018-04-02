@@ -9,7 +9,7 @@ import retrofit2.http.Query;
 
 public interface Api {
 
-    String KEY = "AIzaSyAEQUEF212etm4tfVMvZlQPz4cS4qVuxGI";
+    String KEY = "AIzaSyAVQAdyM4Fh1QYCmuP7WyNJm_UaJxtN-kM";
 
     @GET("/maps/api/place/nearbysearch/json?key=" + KEY + "&type=restaurant&")
     Call<Places> getPlaces(@Query("location") String location,

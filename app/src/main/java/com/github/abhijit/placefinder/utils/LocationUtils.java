@@ -22,7 +22,7 @@ public class LocationUtils {
                 return locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
             } catch (SecurityException e) {
                 e.printStackTrace();
-                Log.e(TAG, "getLastKnownLocation: SecurityException occurred");
+                Log.e(TAG, "getUserLocation: SecurityException occurred");
             }
         }
         return null;

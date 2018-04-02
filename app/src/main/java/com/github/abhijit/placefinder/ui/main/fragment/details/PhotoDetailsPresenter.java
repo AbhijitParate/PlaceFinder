@@ -51,7 +51,7 @@ final class PhotoDetailsPresenter extends BasePresenter<PhotoDetailsContract.Vie
 
                     @Override
                     public void onError(Throwable e) {
-
+                        getView().showMessage(R.string.message_failed_to_get_place_details);
                     }
 
                     @Override

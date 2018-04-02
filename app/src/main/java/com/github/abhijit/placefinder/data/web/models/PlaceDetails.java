@@ -19,6 +19,10 @@ public class PlaceDetails {
         return "OK".equals(status);
     }
 
+    public String getStatus() {
+        return status;
+    }
+
     public static class Result {
         @SerializedName("name")
         private String name;

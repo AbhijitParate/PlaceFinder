@@ -1,6 +1,5 @@
 package com.github.abhijit.placefinder.ui.main;
 
-import android.location.Location;
 import android.text.TextUtils;
 
 import com.github.abhijit.placefinder.R;
@@ -27,13 +26,19 @@ class MainPresenter extends BasePresenter<MainContract.View>
 
     MainPresenter(MainContract.View view, WebService client, SchedulerProvider scheduler) {
         super(view, client, scheduler);
+    }
+
+    @Override
+    public void subscribe() {
+        super.subscribe();
         checkForLocationPermission();
     }
 
     @Override
     public void getPlaces(LatLng latLng) {
+        if (latLng != null) lastLatLng = latLng;
         addToDisposable(
-                getWebService().getPlaces(latLng.latitude, latLng.longitude, DEFAULT_RADIUS),
+                getWebService().getPlaces(lastLatLng, DEFAULT_RADIUS),
                 new PlaceObserver() {
                     @Override
                     void onPlacesReady(List<Places.Result> places) {
@@ -44,8 +49,9 @@ class MainPresenter extends BasePresenter<MainContract.View>
 
     @Override
     public void searchPlaces(String queryTerm, LatLng latLng) {
+        if (latLng != null) lastLatLng = latLng;
         addToDisposable(
-                getWebService().searchPlaces(latLng.latitude, latLng.longitude, DEFAULT_RADIUS, queryTerm),
+                getWebService().searchPlaces(lastLatLng, DEFAULT_RADIUS, queryTerm),
                 new PlaceObserver() {
                     @Override
                     void onPlacesReady(List<Places.Result> places) {
@@ -57,11 +63,7 @@ class MainPresenter extends BasePresenter<MainContract.View>
     @Override
     public void checkForLocationPermission() {
         if (getView().hasLocationPermission()) {
-            Location lastKnownLocation = getView().getLastKnownLocation();
-            if (lastKnownLocation != null) {
-                lastLatLng = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
-                getPlaces(lastLatLng);
-            }
+            getView().getUserLocation();
         } else {
             getView().requestLocationPermission();
         }
@@ -69,18 +71,17 @@ class MainPresenter extends BasePresenter<MainContract.View>
 
     @Override
     public void locationPermissionGranted() {
-        Location lastKnownLocation = getView().getLastKnownLocation();
-        lastLatLng = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
-        getPlaces(lastLatLng);
+        getView().getUserLocation();
     }
 
     @Override
     public void locationPermissionDenied() {
-        getView().showMessage(R.string.message_permission_denied);
+        getView().showLocationPermissionDeniedMessage();
     }
 
     @Override
     public void loadMorePlaces() {
+        // Technically no need to put this check, but its a safeguard
         if (!TextUtils.isEmpty(nextPageToken)) {
             addToDisposable(
                     getWebService().getNextPlaces(nextPageToken),

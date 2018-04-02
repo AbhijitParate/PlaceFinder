@@ -1,6 +1,7 @@
 package com.github.abhijit.placefinder.ui.main;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -12,12 +13,16 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
 import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.data.scheduler.SchedulerInjector;
@@ -27,9 +32,12 @@ import com.github.abhijit.placefinder.ui.main.fragment.details.FragmentPlaceDeta
 import com.github.abhijit.placefinder.ui.main.fragment.list.FragmentList;
 import com.github.abhijit.placefinder.ui.main.fragment.map.FragmentMap;
 import com.github.abhijit.placefinder.ui.view.CustomSearchView;
-import com.github.abhijit.placefinder.utils.LocationUtils;
 import com.github.abhijit.placefinder.utils.PermissionUtils;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import java.util.HashSet;
 import java.util.List;
@@ -57,14 +65,18 @@ public class MainActivity extends AppCompatActivity
     private static Handler handler = new Handler();
     private Runnable cameraMoveRunnable;
 
+    private FusedLocationProviderClient mFusedLocationClient;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate() called with: savedInstanceState = [" + savedInstanceState + "]");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         if (presenter == null) {
             presenter = new MainPresenter(this, WebServiceInjector.getWebService(), SchedulerInjector.getScheduler());
         }
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         switchToListView();
     }
 
@@ -87,9 +99,20 @@ public class MainActivity extends AppCompatActivity
         presenter.subscribe();
     }
 
+    @SuppressLint("MissingPermission")
     @Override
-    public Location getLastKnownLocation() {
-        return LocationUtils.getLastKnownLocation(this);
+    public void getUserLocation() {
+        mFusedLocationClient.getLastLocation()
+                .addOnCompleteListener(new OnCompleteListener<Location>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Location> task) {
+                        Location location = task.getResult();
+                        Log.d(TAG, "onComplete() called with: Location = [" + location.toString() + "]");
+                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                        presenter.getPlaces(latLng);
+                        Toast.makeText(MainActivity.this, "Location found", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @Override
@@ -115,6 +138,22 @@ public class MainActivity extends AppCompatActivity
         ActivityCompat.requestPermissions(MainActivity.this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 REQUEST_CODE_LOCATION_PERMISSION);
+    }
+
+    @Override
+    public void showLocationPermissionDeniedMessage() {
+        final Snackbar snackbar
+                = Snackbar.make(findViewById(android.R.id.content), R.string.message_permission_denied, Snackbar.LENGTH_INDEFINITE);
+
+        snackbar.setAction("Retry", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requestLocationPermission();
+                snackbar.dismiss();
+            }
+        });
+        snackbar.setActionTextColor(ResourcesCompat.getColor(getResources(), android.R.color.white, getTheme()));
+        snackbar.show();
     }
 
     @Override
@@ -154,6 +193,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void onBackPressed() {
+        if ((getSupportActionBar().getDisplayOptions() & ActionBar.DISPLAY_HOME_AS_UP) != 0){
+            resetTitle();
+            presenter.getPlaces(null);
+        } else super.onBackPressed();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
@@ -165,13 +212,17 @@ public class MainActivity extends AppCompatActivity
                 switchToMapView();
                 return true;
             case android.R.id.home:
-                setTitle(R.string.app_name);
-                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-                getSupportActionBar().setDisplayShowHomeEnabled(false);
+                resetTitle();
                 return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void resetTitle() {
+        setTitle(R.string.app_name);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getSupportActionBar().setDisplayShowHomeEnabled(false);
     }
 
     public void switchToMapView() {
@@ -232,12 +283,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-//        searchView.onActionViewCollapsed();
-//        setTitle(query.trim());
+        // TODO: 4/1/18 Retain last search term
+        searchView.onActionViewCollapsed();
+        setTitle(query.trim());
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        Location lastKnownLocation = getLastKnownLocation();
-        presenter.searchPlaces(query.trim(), new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
+        presenter.searchPlaces(query.trim(), null);
         return true;
     }
 
@@ -254,14 +305,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void refreshPlaces() {
         String query = searchView.getQuery().toString();
-        Location lastKnownLocation = getLastKnownLocation();
-        if (lastKnownLocation != null) {
-            if (!TextUtils.isEmpty(query)) {
-                presenter.searchPlaces(query, new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
-            } else {
-                presenter.getPlaces(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
-            }
+        if (!TextUtils.isEmpty(query)) {
+            presenter.searchPlaces(query, null);
+        } else {
+            presenter.getPlaces(null);
         }
+
     }
 
     @Override
