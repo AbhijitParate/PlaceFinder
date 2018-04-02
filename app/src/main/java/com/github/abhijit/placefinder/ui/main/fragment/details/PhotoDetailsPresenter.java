@@ -12,41 +12,24 @@ final class PhotoDetailsPresenter extends BasePresenter<PhotoDetailsContract.Vie
         implements
         PhotoDetailsContract.Presenter {
 
-    private final String placeId;
-
-    PhotoDetailsPresenter(String placeId, PhotoDetailsContract.View view, WebService client, SchedulerProvider schedulerProvider) {
+    PhotoDetailsPresenter(PhotoDetailsContract.View view, WebService client, SchedulerProvider schedulerProvider) {
         super(view, client, schedulerProvider);
-        this.placeId = placeId;
     }
 
     @Override
-    public void subscribe() {
-        super.subscribe();
-    }
-
-    @Override
-    public void unsubscribe() {
-        super.unsubscribe();
-    }
-
-    @Override
-    public void getPlaceDetails() {
+    public void getPlaceDetails(String placeId) {
         addToDisposable(
                 getWebService().getPlaceDetails(placeId),
                 new DisposableMaybeObserver<PlaceDetails>() {
                     @Override
                     public void onSuccess(PlaceDetails placeDetails) {
-                        if (placeDetails.isStatusOk()) {
-                            PlaceDetails.Result result = placeDetails.getResult();
-                            getView().setPlaceTitle(result.getName());
-                            getView().setRating(result.getRating());
-                            getView().setAddress(result.getAddress());
-                            getView().setContact(result.getPhone());
-                            getView().setPhotos(result.getPhotos());
-                            getView().setReviews(result.getReview());
-                        } else {
-                            getView().showMessage(R.string.message_api_issue);
-                        }
+                        PlaceDetails.Result result = placeDetails.getResult();
+                        getView().setPlaceTitle(result.getName());
+                        getView().setRating(result.getRating());
+                        getView().setAddress(result.getAddress());
+                        getView().setContact(result.getPhone());
+                        getView().setPhotos(result.getPhotos());
+                        getView().setReviews(result.getReview());
                     }
 
                     @Override

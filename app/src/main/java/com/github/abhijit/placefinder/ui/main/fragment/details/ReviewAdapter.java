@@ -23,9 +23,7 @@ class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewHolder> {
 
     private List<PlaceDetails.Result.Review> reviewList = new ArrayList<>();
 
-    ReviewAdapter(List<PlaceDetails.Result.Review> reviewList) {
-        this.reviewList.addAll(reviewList);
-    }
+    ReviewAdapter() { }
 
     @NonNull
     @Override
@@ -43,6 +41,14 @@ class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewHolder> {
         holder.reviewRating.setRating(Float.valueOf(review.getRating()));
         holder.tvTimeStamp.setText(review.getTimestamp());
         holder.tvReview.setText(review.getText());
+    }
+
+    public void updateDataset(List<PlaceDetails.Result.Review> reviews){
+        if (reviews != null && reviews.size() > 0) {
+            this.reviewList.clear();
+            this.reviewList.addAll(reviews);
+            notifyDataSetChanged();
+        }
     }
 
     @Override

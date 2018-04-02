@@ -18,9 +18,7 @@ class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoHolder> {
 
     private List<Photo> photoList = new ArrayList<>();
 
-    PhotoAdapter(List<Photo> photoList) {
-        this.photoList.addAll(photoList);
-    }
+    PhotoAdapter() { }
 
     @NonNull
     @Override
@@ -38,6 +36,14 @@ class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoHolder> {
     @Override
     public int getItemCount() {
         return photoList.size();
+    }
+
+    public void updateDataset(List<Photo> photos){
+        if (photos != null && photos.size() > 0) {
+            this.photoList.clear();
+            this.photoList.addAll(photos);
+            notifyDataSetChanged();
+        }
     }
 
     class PhotoHolder extends RecyclerView.ViewHolder {

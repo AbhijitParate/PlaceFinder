@@ -15,10 +15,11 @@ interface PhotoDetailsContract {
         void setContact(String phone);
         void setPhotos(List<Photo> photos);
         void setReviews(List<PlaceDetails.Result.Review> review);
+        String getPlaceId();
     }
 
     interface Presenter extends BaseContract.Presenter {
-        void getPlaceDetails();
+        void getPlaceDetails(String placeId);
     }
 
 }

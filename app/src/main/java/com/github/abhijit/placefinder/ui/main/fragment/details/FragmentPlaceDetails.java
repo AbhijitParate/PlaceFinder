@@ -63,6 +63,11 @@ public class FragmentPlaceDetails extends DialogFragment
     @BindView(R.id.reviewList)
     RecyclerView reviewList;
 
+    PhotoAdapter photoAdapter;
+    ReviewAdapter reviewAdapter;
+
+
+
     private Places.Result result;
 
     private PhotoDetailsContract.Presenter presenter;
@@ -102,10 +107,16 @@ public class FragmentPlaceDetails extends DialogFragment
             // TODO: 3/31/18 grey out starts if rating is not available
             ratingBar.setRating(Float.valueOf(String.valueOf(result.getRating())));
         }
+        photoAdapter = new PhotoAdapter();
+        reviewAdapter = new ReviewAdapter();
+
+        photoList.setAdapter(photoAdapter);
+        reviewList.setAdapter(reviewAdapter);
+
         if (presenter == null) {
-            presenter = new PhotoDetailsPresenter(result.getPlaceId(), this, WebServiceInjector.getWebService(), SchedulerInjector.getScheduler());
+            presenter = new PhotoDetailsPresenter(this, WebServiceInjector.getWebService(), SchedulerInjector.getScheduler());
         }
-        presenter.getPlaceDetails();
+        presenter.getPlaceDetails(result.getPlaceId());
     }
 
     @NonNull
@@ -160,14 +171,17 @@ public class FragmentPlaceDetails extends DialogFragment
 
     @Override
     public void setPhotos(List<Photo> photos) {
-        photoList.setAdapter(new PhotoAdapter(photos));
-        photoList.setHasFixedSize(true);
+        photoAdapter.updateDataset(photos);
     }
 
     @Override
     public void setReviews(List<PlaceDetails.Result.Review> reviews) {
-        reviewList.setAdapter(new ReviewAdapter(reviews));
-        reviewList.setHasFixedSize(true);
+        reviewAdapter.updateDataset(reviews);
         tvReviewCount.setText(String.format(getString(R.string.template_review_count), reviews.size()));
+    }
+
+    @Override
+    public String getPlaceId() {
+        return result.getPlaceId();
     }
 }
