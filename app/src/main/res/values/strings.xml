@@ -12,4 +12,5 @@
     <string name="label_photos">Photos</string>
     <string name="cd_restaurant_image">Restaurant Image</string>
     <string name="template_review_count">%d reviews</string>
+    <string name="label_retry">Retry</string>
 </resources>

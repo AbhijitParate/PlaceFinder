@@ -113,10 +113,7 @@ public class FragmentPlaceDetails extends DialogFragment
         photoList.setAdapter(photoAdapter);
         reviewList.setAdapter(reviewAdapter);
 
-        if (presenter == null) {
-            presenter = new PhotoDetailsPresenter(this, WebServiceInjector.getWebService(), SchedulerInjector.getScheduler());
-        }
-        presenter.getPlaceDetails(result.getPlaceId());
+        presenter = new PhotoDetailsPresenter(result.getPlaceId(), this, WebServiceInjector.getWebService(), SchedulerInjector.getScheduler());
     }
 
     @NonNull

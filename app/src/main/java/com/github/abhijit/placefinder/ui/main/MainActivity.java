@@ -22,7 +22,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.data.scheduler.SchedulerInjector;
@@ -111,7 +110,6 @@ public class MainActivity extends AppCompatActivity
                         Log.d(TAG, "onComplete() called with: Location = [" + location.toString() + "]");
                         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                         presenter.getPlaces(latLng);
-                        Toast.makeText(MainActivity.this, "Location found", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -146,7 +144,7 @@ public class MainActivity extends AppCompatActivity
         final Snackbar snackbar
                 = Snackbar.make(findViewById(android.R.id.content), R.string.message_permission_denied, Snackbar.LENGTH_INDEFINITE);
 
-        snackbar.setAction("Retry", new View.OnClickListener() {
+        snackbar.setAction(R.string.label_retry, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 requestLocationPermission();

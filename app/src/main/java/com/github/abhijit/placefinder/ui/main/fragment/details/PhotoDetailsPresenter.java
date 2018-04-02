@@ -12,8 +12,9 @@ final class PhotoDetailsPresenter extends BasePresenter<PhotoDetailsContract.Vie
         implements
         PhotoDetailsContract.Presenter {
 
-    PhotoDetailsPresenter(PhotoDetailsContract.View view, WebService client, SchedulerProvider schedulerProvider) {
+    PhotoDetailsPresenter(String placeId, PhotoDetailsContract.View view, WebService client, SchedulerProvider schedulerProvider) {
         super(view, client, schedulerProvider);
+        getPlaceDetails(placeId);
     }
 
     @Override
