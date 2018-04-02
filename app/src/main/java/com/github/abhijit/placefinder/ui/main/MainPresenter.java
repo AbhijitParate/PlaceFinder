@@ -20,18 +20,12 @@ class MainPresenter extends BasePresenter<MainContract.View>
 
     private static final String TAG = MainPresenter.class.getSimpleName();
 
-    private static final int DEFAULT_RADIUS = 5000;
+    static final int DEFAULT_RADIUS = 5000;
     private LatLng lastLatLng;
     private String nextPageToken;
 
     MainPresenter(MainContract.View view, WebService client, SchedulerProvider scheduler) {
         super(view, client, scheduler);
-    }
-
-    @Override
-    public void subscribe() {
-        super.subscribe();
-        checkForLocationPermission();
     }
 
     @Override

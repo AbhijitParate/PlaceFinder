@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity
         }
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         switchToListView();
+        presenter.checkForLocationPermission();
     }
 
     @Override
