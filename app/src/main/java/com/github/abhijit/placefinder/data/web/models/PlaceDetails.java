@@ -15,8 +15,8 @@ public class PlaceDetails {
         return result;
     }
 
-    public String getStatus() {
-        return status;
+    public boolean isStatusOk() {
+        return "OK".equals(status);
     }
 
     public static class Result {

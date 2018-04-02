@@ -7,15 +7,18 @@ import com.github.abhijit.placefinder.base.BaseContract;
 import com.github.abhijit.placefinder.data.web.models.Places;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.List;
+
 interface MainContract {
 
     interface View extends BaseContract.View {
-        void setPlaces(Places places);
         boolean hasLocationPermission();
         void requestLocationPermission();
         Location getLastKnownLocation();
         void showMessage(@StringRes int stringId);
-        void appendPlaces(Places places);
+        void setPlaces(List<Places.Result> places);
+        void appendPlaces(List<Places.Result> places);
+        void notifyNoMorePlaces();
     }
 
     interface Presenter extends BaseContract.Presenter {
@@ -24,6 +27,6 @@ interface MainContract {
         void checkForLocationPermission();
         void locationPermissionGranted();
         void locationPermissionDenied();
-        void loadMorePlaces(String nextPageToken);
+        void loadMorePlaces();
     }
 }

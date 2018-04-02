@@ -2,7 +2,6 @@ package com.github.abhijit.placefinder.ui.main.fragment.list;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,24 +24,16 @@ public class PlaceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static final int ITEM_TYPE_FOOTER = 100;
     private static final int ITEM_TYPE_PLACE = 101;
 
-    private List<Places.Result> placeList = new ArrayList<>();
-    private AdapterCallbackListener callbackListener;
-    private String nextPageToken;
+    private List<Places.Result> placeList = new ArrayList<>(0);
+    private OnPlaceClickListener callbackListener;
 
-    PlaceAdapter(AdapterCallbackListener listener) {
+    PlaceAdapter(OnPlaceClickListener listener) {
         this.callbackListener = listener;
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (placeList.get(position) == null) {
-            if (nextPageToken != null) {
-                callbackListener.getMorePlaces(nextPageToken);
-                nextPageToken = null;
-            }
-            return ITEM_TYPE_FOOTER;
-        }
-        return ITEM_TYPE_PLACE;
+        return placeList.get(position) == null ? ITEM_TYPE_FOOTER : ITEM_TYPE_PLACE;
     }
 
     @NonNull
@@ -57,23 +48,23 @@ public class PlaceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        int itemViewType = getItemViewType(position);
-        if (itemViewType != ITEM_TYPE_FOOTER) {
+        if (holder instanceof PlaceViewHolder) {
+
             Places.Result r = placeList.get(position);
-            ((PlaceViewHolder) holder).tvName.setText(String.format("%s %s", String.valueOf(position + 1), r.getName()));
+
+            PlaceViewHolder placeViewHolder = (PlaceViewHolder) holder;
+
+            placeViewHolder.tvName.setText(String.format("%s %s", String.valueOf(position + 1), r.getName()));
             if (r.getRating() != null) {
-                ((PlaceViewHolder) holder).ratingBar.setVisibility(View.VISIBLE);
-                ((PlaceViewHolder) holder).ratingBar.setRating(Float.valueOf(String.valueOf(r.getRating())));
+                placeViewHolder.ratingBar.setVisibility(View.VISIBLE);
+                placeViewHolder.ratingBar.setRating(Float.valueOf(String.valueOf(r.getRating())));
             } else {
-                ((PlaceViewHolder) holder).ratingBar.setVisibility(View.GONE);
+                placeViewHolder.ratingBar.setVisibility(View.GONE);
             }
             if (r.getPhotos() != null && r.getPhotos().size() > 0) {
-                GlideUtils.load(GlideUtils.PHOTO_BASE_URL + r.getPhotos().get(0).getPhotoReference(), ((PlaceViewHolder) holder).placeImageView);
+                GlideUtils.load(GlideUtils.PHOTO_BASE_URL + r.getPhotos().get(0).getPhotoReference(), placeViewHolder.placeImageView);
             }
-            ((PlaceViewHolder) holder).bindClickListener();
-            if (position == placeList.size() - 1) {
-                Log.d("onBindViewHolder: ", "No more places");
-            }
+            placeViewHolder.bindClickListener();
         }
     }
 
@@ -82,26 +73,17 @@ public class PlaceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         return placeList.size();
     }
 
-    public void updateDataSet(Places places) {
+    public void updatePlaceList(List<Places.Result> places) {
         placeList.clear();
-        placeList.addAll(places.getResults());
+        placeList.addAll(places);
         placeList.add(null);
-        updateNextPageToken(places);
         notifyDataSetChanged();
     }
 
-    public void appendPlaces(Places places) {
+    public void appendPlaces(List<Places.Result> places) {
         int oldSize = placeList.size() - 1;
-        placeList.addAll(oldSize, places.getResults());
-        updateNextPageToken(places);
+        placeList.addAll(oldSize, places);
         notifyItemRangeChanged(oldSize, placeList.size());
-    }
-
-    private void updateNextPageToken(Places places) {
-        nextPageToken = places.getNextPageToken();
-        if (nextPageToken == null) {
-            placeList.remove(placeList.size() - 1);
-        }
     }
 
     public void noMorePlaces() {
@@ -141,8 +123,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
-    interface AdapterCallbackListener {
+    interface OnPlaceClickListener {
         void onPlaceClicked(Places.Result result);
-        void getMorePlaces(String nextPageToken);
     }
 }

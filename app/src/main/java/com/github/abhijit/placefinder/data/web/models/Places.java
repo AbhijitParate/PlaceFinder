@@ -5,6 +5,7 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Places {
@@ -16,15 +17,15 @@ public class Places {
     private String status;
 
     public List<Result> getResults() {
-        return results;
+        return results != null ? results : new ArrayList<Result>(0);
     }
 
     public String getNextPageToken() {
         return nextPageToken;
     }
 
-    public String getStatus() {
-        return status;
+    public boolean isStatusOk() {
+        return "OK".equals(status);
     }
 
     public static class Result implements Parcelable {

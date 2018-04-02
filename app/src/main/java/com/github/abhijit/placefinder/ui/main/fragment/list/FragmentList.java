@@ -5,16 +5,19 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 
 import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.data.web.models.Places;
 import com.github.abhijit.placefinder.ui.main.OnFragmentAttachListener;
 import com.github.abhijit.placefinder.ui.main.ResultListener;
-import com.github.abhijit.placefinder.ui.main.fragment.details.FragmentPlaceDetails;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -22,7 +25,7 @@ import butterknife.ButterKnife;
 public class FragmentList extends Fragment
         implements
         ResultListener,
-        PlaceAdapter.AdapterCallbackListener,
+        PlaceAdapter.OnPlaceClickListener,
         SwipeRefreshLayout.OnRefreshListener {
 
     public static final String TAG = FragmentList.class.getName();
@@ -35,6 +38,33 @@ public class FragmentList extends Fragment
     RecyclerView recyclerView;
 
     private PlaceAdapter placeAdapter;
+
+    private boolean isScrolling = false;
+
+    private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            super.onScrollStateChanged(recyclerView, newState);
+            if(newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                isScrolling = true;
+            }
+        }
+
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+            LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+            int currentItems, scrollOutItems, totalItems;
+            currentItems = layoutManager.getChildCount();
+            totalItems = layoutManager.getItemCount();
+            scrollOutItems = layoutManager.findFirstVisibleItemPosition();
+
+            if(isScrolling && (currentItems + scrollOutItems == totalItems)) {
+                isScrolling = false;
+                ((OnFragmentAttachListener) getActivity()).loadMorePlaces();
+            }
+        }
+    };
 
     public static FragmentList newInstance() {
         Bundle args = new Bundle();
@@ -74,29 +104,26 @@ public class FragmentList extends Fragment
     }
 
     @Override
-    public void setPlaces(Places places) {
-        placeAdapter.updateDataSet(places);
+    public void setPlaces(List<Places.Result> places) {
+        placeAdapter.updatePlaceList(places);
         swipeRefreshLayout.setRefreshing(false);
+        recyclerView.addOnScrollListener(onScrollListener);
     }
 
     @Override
-    public void appendPlaces(Places places) {
+    public void appendPlaces(List<Places.Result> places) {
         placeAdapter.appendPlaces(places);
     }
 
     @Override
     public void noMorePlaces() {
+        recyclerView.removeOnScrollListener(onScrollListener);
         placeAdapter.noMorePlaces();
     }
 
     @Override
     public void onPlaceClicked(Places.Result result) {
-        FragmentPlaceDetails.newInstance(result).show(getChildFragmentManager());
-    }
-
-    @Override
-    public void getMorePlaces(String nextPageToken) {
-        ((OnFragmentAttachListener) getActivity()).loadMorePlaces(nextPageToken);
+        ((OnFragmentAttachListener) getActivity()).showPlaceDetails(result);
     }
 
     @Override

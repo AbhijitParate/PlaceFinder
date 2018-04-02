@@ -36,7 +36,7 @@ final class PhotoDetailsPresenter extends BasePresenter<PhotoDetailsContract.Vie
                 new DisposableMaybeObserver<PlaceDetails>() {
                     @Override
                     public void onSuccess(PlaceDetails placeDetails) {
-                        if ("OK".equalsIgnoreCase(placeDetails.getStatus())) {
+                        if (placeDetails.isStatusOk()) {
                             PlaceDetails.Result result = placeDetails.getResult();
                             getView().setPlaceTitle(result.getName());
                             getView().setRating(result.getRating());

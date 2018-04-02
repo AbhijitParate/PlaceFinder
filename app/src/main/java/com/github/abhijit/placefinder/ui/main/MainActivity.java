@@ -23,6 +23,7 @@ import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.data.scheduler.SchedulerInjector;
 import com.github.abhijit.placefinder.data.web.WebServiceInjector;
 import com.github.abhijit.placefinder.data.web.models.Places;
+import com.github.abhijit.placefinder.ui.main.fragment.details.FragmentPlaceDetails;
 import com.github.abhijit.placefinder.ui.main.fragment.list.FragmentList;
 import com.github.abhijit.placefinder.ui.main.fragment.map.FragmentMap;
 import com.github.abhijit.placefinder.ui.view.CustomSearchView;
@@ -31,6 +32,7 @@ import com.github.abhijit.placefinder.utils.PermissionUtils;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity
@@ -203,16 +205,23 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void appendPlaces(Places places) {
+    public void setPlaces(List<Places.Result> places) {
+        for (ResultListener l : resultListeners) {
+            l.setPlaces(places);
+        }
+    }
+
+    @Override
+    public void appendPlaces(List<Places.Result> places) {
         for (ResultListener l : resultListeners) {
             l.appendPlaces(places);
         }
     }
 
     @Override
-    public void setPlaces(Places places) {
+    public void notifyNoMorePlaces() {
         for (ResultListener l : resultListeners) {
-            l.setPlaces(places);
+            l.noMorePlaces();
         }
     }
 
@@ -223,12 +232,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        searchView.onActionViewCollapsed();
-        setTitle(query);
+//        searchView.onActionViewCollapsed();
+//        setTitle(query.trim());
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         Location lastKnownLocation = getLastKnownLocation();
-        presenter.searchPlaces(query, new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
+        presenter.searchPlaces(query.trim(), new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
         return true;
     }
 
@@ -273,7 +282,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void loadMorePlaces(String nextPageToken) {
-        presenter.loadMorePlaces(nextPageToken);
+    public void loadMorePlaces() {
+        presenter.loadMorePlaces();
+    }
+
+    @Override
+    public void showPlaceDetails(Places.Result result) {
+        FragmentPlaceDetails.newInstance(result).show(getSupportFragmentManager());
     }
 }

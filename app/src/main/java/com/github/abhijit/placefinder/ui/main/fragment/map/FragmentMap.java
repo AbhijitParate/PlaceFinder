@@ -12,7 +12,6 @@ import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.data.web.models.Places;
 import com.github.abhijit.placefinder.ui.main.OnFragmentAttachListener;
 import com.github.abhijit.placefinder.ui.main.ResultListener;
-import com.github.abhijit.placefinder.ui.main.fragment.details.FragmentPlaceDetails;
 import com.github.abhijit.placefinder.utils.PermissionUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -100,15 +99,15 @@ public class FragmentMap extends Fragment
     }
 
     @Override
-    public void setPlaces(Places places) {
+    public void setPlaces(List<Places.Result> places) {
         placeList.clear();
-        placeList.addAll(places.getResults());
+        placeList.addAll(places);
         markerMap.clear();
         mapView.getMapAsync(this);
     }
 
     @Override
-    public void appendPlaces(Places places) {
+    public void appendPlaces(List<Places.Result> places) {
         // Nothing goes here
     }
 
@@ -170,6 +169,6 @@ public class FragmentMap extends Fragment
     @Override
     public void onInfoWindowClick(Marker marker) {
         Places.Result result = markerMap.get(marker);
-        FragmentPlaceDetails.newInstance(result).show(getChildFragmentManager());
+        ((OnFragmentAttachListener) getActivity()).showPlaceDetails(result);
     }
 }

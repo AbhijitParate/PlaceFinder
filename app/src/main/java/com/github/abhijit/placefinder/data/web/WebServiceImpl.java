@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import com.github.abhijit.placefinder.data.web.models.PlaceDetails;
 import com.github.abhijit.placefinder.data.web.models.Places;
 
-import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeEmitter;
 import io.reactivex.MaybeOnSubscribe;
@@ -32,21 +31,12 @@ class WebServiceImpl implements WebService {
             @Override
             public void subscribe(final MaybeEmitter<Places> e) {
                 api.getPlaces(lat + "," + lng, radius)
-                        .enqueue(new Callback<Places>() {
-                                     @Override
-                                     public void onResponse(@NonNull Call<Places> call,
-                                                            @NonNull Response<Places> response) {
-                                         e.onSuccess(response.body());
-                                         e.onComplete();
-                                     }
-
-                                     @Override
-                                     public void onFailure(@NonNull Call<Places> call,
-                                                           @NonNull Throwable t) {
-                                         e.onError(t);
-                                     }
-                                 }
-                        );
+                        .enqueue(new WebCallback<Places>(e) {
+                            @Override
+                            boolean isStatusOK(Places places) {
+                                return places != null && places.isStatusOk();
+                            }
+                        });
             }
         });
     }
@@ -57,21 +47,12 @@ class WebServiceImpl implements WebService {
             @Override
             public void subscribe(@NonNull final MaybeEmitter<Places> e) {
                 api.searchPlaces(String.format("%s,%s", lat, lng), radius, query)
-                        .enqueue(new Callback<Places>() {
-                                     @Override
-                                     public void onResponse(@NonNull Call<Places> call,
-                                                            @NonNull Response<Places> response) {
-                                         e.onSuccess(response.body());
-                                         e.onComplete();
-                                     }
-
-                                     @Override
-                                     public void onFailure(@NonNull Call<Places> call,
-                                                           @NonNull Throwable t) {
-                                         e.onError(t);
-                                     }
-                                 }
-                        );
+                        .enqueue(new WebCallback<Places>(e) {
+                            @Override
+                            boolean isStatusOK(Places places) {
+                                return places != null && places.isStatusOk();
+                            }
+                        });
             }
         });
     }
@@ -82,19 +63,10 @@ class WebServiceImpl implements WebService {
             @Override
             public void subscribe(final MaybeEmitter<Places> e) {
                 api.getNextPlaces(nextPageToken)
-                        .enqueue(new Callback<Places>() {
+                        .enqueue(new WebCallback<Places>(e) {
                             @Override
-                            public void onResponse(@NonNull Call<Places> call,
-                                                   @NonNull Response<Places> response) {
-                                if (response.isSuccessful()) {
-                                    e.onSuccess(response.body());
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(@NonNull Call<Places> call,
-                                                  @NonNull Throwable t) {
-                                e.onError(t);
+                            boolean isStatusOK(Places places) {
+                                return places != null && places.isStatusOk();
                             }
                         });
             }
@@ -107,24 +79,38 @@ class WebServiceImpl implements WebService {
             @Override
             public void subscribe(final MaybeEmitter<PlaceDetails> e) {
                 api.getPlaceDetails(placeId)
-                        .enqueue(new Callback<PlaceDetails>() {
+                        .enqueue(new WebCallback<PlaceDetails>(e) {
                             @Override
-                            public void onResponse(@NonNull Call<PlaceDetails> call,
-                                                   @NonNull Response<PlaceDetails> response) {
-                                if (response.isSuccessful()){
-                                    e.onSuccess(response.body());
-                                }
-
-                            }
-
-                            @Override
-                            public void onFailure(@NonNull Call<PlaceDetails> call,
-                                                  @NonNull Throwable t) {
-                                e.onError(t);
+                            boolean isStatusOK(PlaceDetails placeDetails) {
+                                return placeDetails != null && placeDetails.isStatusOk();
                             }
                         });
             }
         });
+    }
+
+    private abstract class WebCallback<T> implements Callback<T> {
+
+        private MaybeEmitter<T> e;
+
+        WebCallback(MaybeEmitter<T> e) {
+            this.e = e;
+        }
+
+        @Override
+        public void onResponse(@NonNull Call<T> call, @NonNull Response<T> response) {
+            if (response.isSuccessful() && isStatusOK(response.body())) {
+                e.onSuccess(response.body());
+            }
+        }
+
+        abstract boolean isStatusOK(T t);
+
+        @Override
+        public void onFailure(@NonNull Call<T> call, @NonNull Throwable t) {
+            e.onError(t);
+            t.printStackTrace();
+        }
     }
 
     private static class RetroFitInstance {
