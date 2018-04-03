@@ -121,7 +121,7 @@ class MainPresenter extends BasePresenter<MainContract.View>
 
     private void updateNextPageToken(String nextPageToken) {
         this.nextPageToken = nextPageToken;
-        if (TextUtils.isEmpty(nextPageToken)) {
+        if (nextPageToken != null && !nextPageToken.isEmpty()) {
             getView().notifyNoMorePlaces();
         }
     }

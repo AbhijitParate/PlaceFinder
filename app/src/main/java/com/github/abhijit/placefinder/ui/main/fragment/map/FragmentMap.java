@@ -12,7 +12,6 @@ import com.github.abhijit.placefinder.R;
 import com.github.abhijit.placefinder.data.web.models.Places;
 import com.github.abhijit.placefinder.ui.main.OnFragmentAttachListener;
 import com.github.abhijit.placefinder.ui.main.ResultListener;
-import com.github.abhijit.placefinder.utils.PermissionUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -30,9 +29,6 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class FragmentMap extends Fragment
         implements
@@ -140,11 +136,11 @@ public class FragmentMap extends Fragment
             markerMap.put(m, result);
         }
 
-        if (!isMapInitialized) {
+        //if (!isMapInitialized) {
             LatLng latLng = new LatLng(lat / placeList.size(), lng / placeList.size());
             CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(15.0f).build();
             googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-        }
+        //}
         googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
@@ -152,10 +148,10 @@ public class FragmentMap extends Fragment
                 return true;
             }
         });
-        if (PermissionUtils.hasPermission(getContext(), ACCESS_FINE_LOCATION)
-                || PermissionUtils.hasPermission(getContext(), ACCESS_COARSE_LOCATION)) {
-            googleMap.setMyLocationEnabled(true);
-        }
+//        if (PermissionUtils.hasPermission(getContext(), ACCESS_FINE_LOCATION)
+//                || PermissionUtils.hasPermission(getContext(), ACCESS_COARSE_LOCATION)) {
+//            googleMap.setMyLocationEnabled(true);
+//        }
         googleMap.setOnInfoWindowClickListener(this);
         googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
             @Override

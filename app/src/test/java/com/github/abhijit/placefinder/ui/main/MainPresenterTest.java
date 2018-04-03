@@ -59,10 +59,7 @@ public class MainPresenterTest extends AbstractPresenterTest<MainContract.Presen
 
         verify(view).hasLocationPermission();
 
-        presenter.locationPermissionGranted();
-
         verify(view).getUserLocation();
-
 
     }
 

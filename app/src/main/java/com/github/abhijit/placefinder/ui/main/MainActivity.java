@@ -16,7 +16,6 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -55,7 +54,6 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_CODE_LOCATION_PERMISSION = 345;
 
     private Set<ResultListener> resultListeners = new HashSet<>();
-    private SearchView searchView;
     private String currentView = FragmentList.TAG;
 
     private static MainContract.Presenter presenter;
@@ -229,7 +227,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_SEARCH_ACTIVITY  && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_CODE_SEARCH_ACTIVITY && resultCode == RESULT_OK) {
             SearchPredictions.Prediction prediction = data.getParcelableExtra(SearchActivity.SEARCH_RESULT);
             presenter.predictionSelected(prediction);
         }
@@ -299,12 +297,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        // TODO: 4/1/18 Retain last search term
-        searchView.onActionViewCollapsed();
-        setTitle(query.trim());
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        presenter.searchPlaces(query.trim(), null);
+//        // TODO: 4/1/18 Retain last search term
+//        searchView.onActionViewCollapsed();
+//        setTitle(query.trim());
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setDisplayShowHomeEnabled(true);
+//        presenter.searchPlaces(query.trim(), null);
         return true;
     }
 
@@ -320,12 +318,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void refreshPlaces() {
-        String query = searchView.getQuery().toString();
-        if (!TextUtils.isEmpty(query)) {
-            presenter.searchPlaces(query, null);
-        } else {
-            presenter.getPlaces(null);
-        }
+//        String query = searchView.getQuery().toString();
+//        if (!TextUtils.isEmpty(query)) {
+//            presenter.searchPlaces(query, null);
+//        } else {
+//        }
+        presenter.getPlaces(null);
 
     }
 
@@ -335,12 +333,7 @@ public class MainActivity extends AppCompatActivity
         cameraMoveRunnable = new Runnable() {
             @Override
             public void run() {
-                String query = searchView.getQuery().toString();
-                if (!TextUtils.isEmpty(query)) {
-                    presenter.searchPlaces(query, latLng);
-                } else {
-                    presenter.getPlaces(latLng);
-                }
+                presenter.getPlaces(latLng);
             }
         };
         handler.postDelayed(cameraMoveRunnable, CAMERA_MOVE_DELAY);

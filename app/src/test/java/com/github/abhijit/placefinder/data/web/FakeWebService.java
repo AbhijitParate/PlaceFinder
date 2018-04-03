@@ -2,6 +2,7 @@ package com.github.abhijit.placefinder.data.web;
 
 import com.github.abhijit.placefinder.data.web.models.PlaceDetails;
 import com.github.abhijit.placefinder.data.web.models.Places;
+import com.github.abhijit.placefinder.data.web.models.SearchPredictions;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.mockito.Mockito;
@@ -15,7 +16,7 @@ public class FakeWebService implements WebService {
 
     @Override
     public Maybe<Places> getPlaces(LatLng latLng, int radius) {
-        return Maybe.just(Mockito.any(Places.class));
+        return Maybe.just(new Places());
     }
 
     @Override
@@ -31,5 +32,10 @@ public class FakeWebService implements WebService {
     @Override
     public Maybe<PlaceDetails> getPlaceDetails(String placeId) {
         return Maybe.just(Mockito.any(PlaceDetails.class));
+    }
+
+    @Override
+    public Maybe<SearchPredictions> getSearchResults(String searchTerm) {
+        return Maybe.just(Mockito.any(SearchPredictions.class));
     }
 }
